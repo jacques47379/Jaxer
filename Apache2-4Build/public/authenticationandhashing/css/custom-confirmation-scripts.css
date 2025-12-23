@@ -1,0 +1,20 @@
+.alert {
+	font-weight: bold;
+}
+
+.flat-list li {
+	display: inline;
+}
+
+footer {
+	margin-top: 20px;
+}
+
+.navbar {
+	background-color: #eeeee !important;
+}
+
+.required {
+	font-weight:bold;
+	color:red;
+}

@@ -1,0 +1,40 @@
+<!-- 2 ways to interact wihth jaxer
+1. on server load, server performs an action, which changes the dom.
+2. on client action. Server perform a command. Return control to the client and perform a subsequent action.
+-->
+
+<html>
+<head>
+<!-- Mke sure both server and client can access jquery-->
+  <script src="http://code.jquery.com/jquery.js" runat="both"></script>
+  <script>
+//When the form submit button is clicked, tell the server to perform an action, then client does nothing. 
+    jQuery(function($){
+      $("form").submit(function(){
+        save( $("textarea").val() );
+        return false;
+      });
+    });
+  </script>
+  <script runat="server">
+//Client tells the server to perform a server side command, save the text file.
+    function save( text ){
+      Jaxer.File.write("tmp.txt", text);
+    }
+    save.proxy = true;
+     
+    function load(){
+      $("textarea").val(
+        Jaxer.File.exists("tmp.txt") ? Jaxer.File.read("tmp.txt") : "");
+    }
+  </script>
+</head>
+<!--When page is loaded, load text from file. If file does not exist. Create file.-->
+<body onserverload="load()">
+<!--generic HTML form-->
+  <form action="" method="post">
+    <textarea></textarea>
+    <input type="submit"/>
+  </form>
+</body>
+</html>

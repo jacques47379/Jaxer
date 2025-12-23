@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Meta data -->
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Jaxer Counter</title>
+    </head>
+    <style>
+    </style>
+
+    <script type="text/javascript" runat="server">
+    
+        //Application starts here
+		function initAuthentication()
+		{
+                var countExampleSql = "CREATE TABLE IF NOT EXISTS countExample " +
+                    "( id INTEGER PRIMARY KEY AUTO_INCREMENT " +
+                    ", countAmount INTEGER" +
+                    ")";
+                Jaxer.DB.execute(countExampleSql);
+
+                var countTotal = Jaxer.DB.execute("SELECT COUNT(*) FROM countExample").singleResult;
+
+                if(countTotal<1) {
+                    Jaxer.DB.execute("INSERT INTO countExample (countAmount) VALUES (?)",
+                    [0]);
+                }
+
+                countTotal = Jaxer.DB.execute("SELECT COUNT(*) FROM countExample").singleResult;
+
+                var resultSet = Jaxer.DB.execute("SELECT * FROM countExample");
+                var counterAmount = resultSet.rows[0];
+
+                var countspan = document.createElement("span");
+				countspan.id = "countSpan";
+                countspan.textContent = "Count: " + counterAmount.countAmount;
+				$("countStart").insertBefore(countspan, $("countStart").firstChild);
+        }
+
+    </script>
+
+    <!-- This script block will execute only on the server with a prxy to the user because of the
+			runat="server-proxy" attributes. -->
+    <script type="text/javascript" runat="server-proxy">
+        function serverIncrement(filler){
+            var resultSet = Jaxer.DB.execute("SELECT * FROM countExample");
+            var counterAmount = resultSet.rows[0].countAmount+=1;
+            Jaxer.DB.execute("UPDATE countExample SET countAmount = ? WHERE id = 1",
+                [counterAmount]);       
+            return counterAmount;
+        }
+
+        function serverDecrement(filler){
+            var resultSet = Jaxer.DB.execute("SELECT * FROM countExample");
+            var counterAmount = Math.max(resultSet.rows[0].countAmount-=1,0);
+            Jaxer.DB.execute("UPDATE countExample SET countAmount = ? WHERE id = 1",
+                [counterAmount]);        
+            return counterAmount;
+        }
+    </script>
+
+	<!-- This script block will be available on both client and server since the 
+			runat attribute is set to 'both'. -->
+    <script type="text/javascript" runat="both">
+        /*
+         * Easy access to a named element in the DOM
+         */
+        function $(id) { 
+            return document.getElementById(id); 
+        }
+    </script>
+
+    <body class="nes-container is-dark" onserverload="initAuthentication();">
+        <div class="main">
+                <h1 id="countStart">
+                    
+                </h1>
+
+                <button id="incrementButton">
+                    Increment
+                </button>
+                <button id="decrementButton">
+                    Decrement
+                </button>
+            </div>
+        </div>
+
+    <script defer type="text/javascript">
+        function incrementDecrementResponse(msg){
+				$("countSpan").textContent = "Count: " + msg;
+        }
+
+        incrementButton.addEventListener("click", function () {
+            serverIncrement.async(incrementDecrementResponse, "hello");
+        });
+
+        decrementButton.addEventListener("click", function () {
+            serverDecrement.async(incrementDecrementResponse, "hello");
+        });
+    </script>        
+    </body>
+</html>

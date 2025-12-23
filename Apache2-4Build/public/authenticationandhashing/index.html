@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Meta data -->
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!-- Jquery library needs to be placed above any reference to Boostrap js -->
+		<script defer src="js/jquery-3.3.1.min.js"></script>
+		<link defer rel="stylesheet" href="css/bootstrap.min.css">
+		<script defer src="js/bootstrap.min.js"></script>
+		<link defer rel="stylesheet" href="css/custom.css">
+		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+
+		<title>Bootstrap</title>
+		<style>
+            /* Table utility style declarations */
+                .collapseabletable {
+                   border-collapse: collapse;
+                   border-spacing: 0;
+                   border: 1px solid;
+                 }
+                   
+                .collapseabletablerow {
+                    border: 1px solid;
+                   }
+    
+                .double-wall-padding {
+                  padding-left:16px;
+                  padding-right:16px;
+                }	
+
+.navbar-expand-lg {
+    background-color:rgb(243, 200, 7) !important;
+    color: rgb(255, 255, 255);
+}    
+
+.navbar-brand {
+    color: rgb(255, 255, 255);
+    font-style: italic;
+}    
+
+a.navbar-brand:hover {
+  color: #d6f8dd;
+  font-style: italic;
+}
+
+a.nav-link {
+    color: rgb(255, 255, 255);
+}    
+
+a.nav-link:hover {
+  color: #d6f8dd;
+}
+
+button.btn.btn-outline-success {
+    color: rgb(243, 200, 7);
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(255, 255, 255);
+}
+
+div.modal-header {
+    background-color:rgb(243, 200, 7) !important;
+    color: rgb(255, 255, 255);
+}
+
+button.btn.btn-secondary.ml-auto {
+    color: rgb(255, 255, 255);
+    background-color:rgb(243, 200, 7) !important;
+    border-color: rgb(243, 200, 7);
+}
+
+button.btn.btn-primary {
+    color: rgb(255, 255, 255);
+    background-color:rgb(243, 200, 7) !important;
+    border-color: rgb(243, 200, 7);
+}
+
+input.btn.btn-primary {
+    color: rgb(255, 255, 255);
+    background-color:rgb(243, 200, 7) !important;
+    border-color: rgb(243, 200, 7);
+}
+
+label.col-sm-2.control-label {
+    max-width: 100%;
+}
+
+			.resizeable-box {
+			  resize: vertical;
+			  overflow: auto;
+			  width: 100%;
+			  height: 100%;
+			}
+
+			.smallish-border-margin {
+			  margin-bottom:8px;
+			}	
+
+.redValidationBox {
+    color: rgb(255, 0, 0);
+}
+
+.carousel-item img {
+  width: 100%; /* Ensure image takes full width of its container */
+  height: 200px; /* Ensure image takes full height of its container */
+}
+            
+        </style>
+	</head>
+		<!-- We set a new attribute on the body tag: 'onserverload'. It works just like 'onload', but
+			on the server-side. When Jaxer is done loading the page, the function(s) specified will
+			be executed. You can have both onserverload and onload, for server and client, 
+			respectively. -->
+    <body onserverload="initAuthentication()">
+		<div class="container">
+			<nav class="navbar navbar-expand-lg">
+    			<a class="navbar-brand" href="#">ShopRight</a>
+    			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      			<span class="navbar-toggler-icon"></span>
+    			</button>
+    			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+      				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        				<li class="nav-item">
+          					<a class="nav-link" href="#" data-toggle="modal" data-target="#categoriesModal">Categories</a>
+        				</li>
+        				<li class="nav-item">
+          					<a class="nav-link" href="#" data-toggle="modal" data-target="#aboutUsModal">About Us</a>
+        				</li>
+        				<li class="nav-item">
+          					<a class="nav-link" href="#" data-toggle="modal" data-target="#contactUsModal">Contact Us</a>
+        				</li>
+      				</ul>
+      				<form class="d-flex ml-auto">
+        				<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        				<button class="btn btn-outline-success" type="submit">Search</button>
+      				</form>
+          				<ul id="loggedOutHeader" class="navbar-nav ml-auto" style="display:flex">
+                            <li class="nav-item">
+              					<a class="nav-link" href="#" data-toggle="modal" data-target="#forgotModal">Forgot Password</a>
+            				</li>
+            				<li class="nav-item">
+              					<a class="nav-link" href="#" data-toggle="modal" data-target="#registerModal">Register</a>
+            				</li>
+            				<li class="nav-item">
+              					<a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
+            				</li>
+          				</ul>
+    
+          				<ul id="loggedInHeader" class="navbar-nav ml-auto" style="display:none">
+                            <li class="nav-item">
+              					<a class="nav-link" href="#" data-toggle="modal" data-target="#myCartModal">My Cart</a>
+            				</li>
+            				<li class="nav-item">
+              					<a class="nav-link" href="#" data-toggle="modal" data-target="#myOrdersModal">My Orders</a>
+            				</li>
+                            <li class="nav-item">
+              					<a class="nav-link" id="myProfileLink" href="#" data-toggle="modal" data-target="#myProfileModal">My Profile</a>
+            				</li>
+            				<li class="nav-item">
+              					<a class="nav-link" href="#" data-toggle="modal" data-target="#forgotModal">Change Password</a>
+            				</li>
+            				<li class="nav-item">
+              					<a class="nav-link" href="#" data-toggle="modal" data-target="#logoutModal">Logout</a>
+            				</li>
+          				</ul>                      
+    			</div>
+			</nav>
+
+            <div id="carouselExampleControls" class="carousel slide mt-3 mb-3" data-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="img/bookshop_1.jpg" class="d-block w-100" alt="first slide">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="img/bookshop_2.jpg" class="d-block w-100" alt="second slide">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="img/bookshop_3.jpg" class="d-block w-100" alt="third slide">
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>			
+
+            <div class="card">
+                <div class="card-header bg-info text-light">
+                    What's New
+                </div>
+                <div class="card-body bg-light">
+                    <div class="row p-3">
+                        <div class="col-sm-6 col-md-3 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/whatsnew_1.jpg" alt="Coloured Pencil No.888 (36 Colour Set)">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Coloured Pencil No.888 (36 Colour Set)</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-sm-6 col-md-3 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/whatsnew_2.jpg" alt="Water Bottle (Arabian - 2016 version)">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Water Bottle (Arabian - 2016 version)</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-sm-6 col-md-3 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/whatsnew_3.jpg" alt="Wireless Desktop Optical Ergo Mouse (Red)">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Wireless Desktop Optical Ergo Mouse (Red)</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-sm-6 col-md-3 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/whatsnew_4.jpg" alt="Wireless Desktop Optical Ergo Mouse (Blue)">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Wireless Desktop Optical Ergo Mouse (Blue)</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-sm-6 col-md-3 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/whatsnew_5.jpg" alt="Funky Half Strip Stapler (Blue/Green - 24/6 or 26/6)">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Funky Half Strip Stapler (Blue/Green - 24/6 or 26/6)</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-sm-6 col-md-3 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/whatsnew_6.jpg" alt="Funky Half Strip Stapler (Pink/Yellow - 24/6 or 26/6)">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Funky Half Strip Stapler (Pink/Yellow - 24/6 or 26/6)</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-sm-6 col-md-3 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/whatsnew_7.jpg" alt="Workwear Navy Drill">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Workwear Navy Drill</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-sm-6 col-md-3 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/whatsnew_8.jpg" alt="VStoreNGo 128GB USB 3.0 External SSD">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">VStoreNGo 128GB USB 3.0 External SSD</p>
+                                  </div>
+                              </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header bg-info text-light">
+                    Top Rated
+                </div>
+                <div class="card-body bg-light">
+                    <div class="row p-3">
+                        <div class="col-md-2 col-sm-4 col-6 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/toprated_1.jpg" alt="Nursing Shirt">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Nursing Shirt</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-md-2 col-sm-4 col-6 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/toprated_2.jpg" alt="Graduation Bear">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Graduation Bear</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-md-2 col-sm-4 col-6 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/toprated_3.jpg" alt="Graduation Roo">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Graduation Roo</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-md-2 col-sm-4 col-6 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/toprated_4.jpg" alt="Ladies Metro Shirt">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Ladies Metro Shirt</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-md-2 col-sm-4 col-6 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/toprated_5.jpg" alt="Mens Pique Polo">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Mens Pique Polo</p>
+                                  </div>
+                              </a>
+                        </div>
+        
+                        <div class="col-md-2 col-sm-4 col-6 pb-3">
+                            <a class="card" href="#">
+                                  <img class="card-img-top" src="img/toprated_6.jpg" alt="Silicone Fob Watch">
+                                  <div class="card-body text-center">
+                                    <p class="card-text">Silicone Fob Watch</p>
+                                  </div>
+                              </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Login -->
+            <div class="modal fade" id="categoriesModal" tabindex="-1" role="dialog" aria-labelledby="categoriesModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="loginModalLabel">Categories</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                            	<div class="form-group">
+                            		<div class="col-sm-10">
+										<select class="form-select" id="category-Select" name="category-Select">
+	                						<option value="Other">--Select--</option>
+	                						<option value="All">All</option>
+	                						<option value="Stationery">Stationery</option>
+											<option value="Office Equipment">Office Equipment</option>
+											<option value="Clothing">Clothing</option>
+											<option value="Miscellaneous">Miscellaneous</option>
+		        						</select>
+                            		</div>
+                            	</div>                         
+                            	<div class="form-group">
+                            		<div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <input type="button" class="btn btn-primary" value="Select" onclick="categorySelect()">
+                            		</div>
+                            	</div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Login -->
+            <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                            	<div class="form-group">
+                            		<label for="inputUser3" class="col-sm-2 control-label">Username</label>
+                            		<div class="col-sm-10">
+                                        <input type="text" class="form-control" id="inputUser3" placeholder="Username" onblur="validate(validateUsername, this.value)">
+                                        <span id="inputUser3Message" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                            	<div class="form-group">
+                            		<label for="inputPassword" class="col-sm-2 control-label">Password</label>
+                            		<div class="col-sm-10">
+                            			<input type="Password" class="form-control" id="inputPassword" placeholder="Password" onblur="validate(validatePassword, this.value)">
+                                        <span id="inputPasswordMessage" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<div class="col-sm-10">
+                                        <span id="inputAccountLoginMessage" class="redValidationBox"></span>
+                            		</div>
+                            	</div>                                
+                            	<div class="form-group">
+                            		<div class="modal-footer">
+                                        <span id="loginMessage"></span>
+                            			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <input type="button" class="btn btn-primary" value="Login" onclick="login()">
+                            		</div>
+                            	</div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Us Modal -->
+            <div class="modal fade" id="aboutUsModal" tabindex="-1" role="dialog" aria-labelledby="aboutUsModal" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="aboutUsModal">About Us</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                            	<div class="form-group">
+                            		<div class="col-sm-10">
+                            			<span>About us details</span>
+                            		</div>
+                            	</div>
+                            	<div class="form-group">
+                            		<div class="modal-footer">
+                            			<button type="button" class="btn btn-secondary ml-auto" data-dismiss="modal">Close</button>
+                            		</div>
+                            	</div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Us Modal -->
+            <div class="modal fade" id="contactUsModal" tabindex="-1" role="dialog" aria-labelledby="contactUsModal" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="contactUsModal">Contact Us</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                            	<div class="form-group">
+                            		<div class="col-sm-10">
+                            			<span>Contact us details</span>
+                            		</div>
+                            	</div>
+                            	<div class="form-group">
+                            		<div class="modal-footer">
+                            			<button type="button" class="btn btn-secondary ml-auto" data-dismiss="modal">Close</button>
+                            		</div>
+                            	</div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Modal -->
+            <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="registerModalLabel">Register</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                            	<div class="form-group">
+                            		<label for="inputUser4" class="col-sm-2 control-label">Username</label>
+                            		<div class="col-sm-10">
+                            			<input type="text" class="form-control" id="inputUser4" placeholder="Username" onblur="validate(validateUsername, this.value)">
+                                        <span id="inputUser4Message" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                            	<div class="form-group">
+                            		<label for="inputEmail4" class="col-sm-2 control-label">Email</label>
+                            		<div class="col-sm-10">
+                            			<input type="email" class="form-control" id="inputEmail4" placeholder="Email" onblur="validate(validateEmail, this.value)">
+                                        <span id="inputEmail4Message" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                            	<div class="form-group">
+                            		<label for="inputPassword1" class="col-sm-2 control-label">Password</label>
+                            		<div class="col-sm-10">
+                            			<input type="Password" class="form-control" id="inputPassword1" placeholder="Password"  onblur="validate(validatePassword, this.value)">
+                                        <span id="inputPassword1Message" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<label for="inputPhone" class="col-sm-2 control-label">Phone</label>
+                            		<div class="col-sm-10">
+                            			<input type="text" class="form-control" id="inputPhone" placeholder="Phone" onblur="validate(validatePhone, this.value)">
+                                        <span id="inputPhoneMessage" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<label for="inputAddress" class="col-sm-2 control-label">Address</label>
+                            		<div class="col-sm-10">
+                                        <textarea class="form-control resizeable-box smallish-border-margin" id="inputAddress" cols="5" name="inputAddress"></textarea> 
+                                        <span id="inputAddressMessage" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<div class="col-sm-10">
+                            		<label for="inputRegisterAccountPicture" class="control-label">Profile Picture</label>
+
+                                        <input type="file" name="inputRegisterAccountPictureFile" id="inputRegisterAccountPictureFile" accept="image/*" onchange="createRegisterAccountPictureBase64Img(this)">
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<div class="col-sm-10">
+                                        <img src="img/defaultProfilePicture.jpg" id="inputRegisterAccountPictureBase64Img" height="64" width="64">
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<div class="col-sm-10">
+                                        <span id="inputAccountCreateMessage" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                
+                            	<div class="form-group">
+                            		<div class="modal-footer">
+                            			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <input type="button" class="btn btn-primary" value="Create" onclick="createAccount()">
+                            		</div>
+                            	</div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Logout -->
+            <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="logoutModalLabel">Logout</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                            	<div class="form-group">
+                            		<div class="col-sm-10">
+                            			<span>Are you ure you want to logout?</span>
+                            		</div>
+                            	</div>
+                            	<div class="form-group">
+                            		<div class="modal-footer">
+                            			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <input type="button" class="btn btn-primary" value="Logout" onclick="logout()">
+                            		</div>
+                            	</div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+			<!-- My Profile -->
+            <div class="modal fade" id="myProfileModal" tabindex="-1" role="dialog" aria-labelledby="myProfileModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="myProfileLabel">My Profile</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                            	<div class="form-group">
+                            		<label for="inputUser5" class="col-sm-2 control-label">Username</label>
+                            		<div class="col-sm-10">
+										<span id="inputUser5" class="form-control"></span>
+                            		</div>
+                            	</div>
+                            	<div class="form-group">
+                            		<label for="inputEmail5" class="col-sm-2 control-label">Email</label>
+                            		<div class="col-sm-10">
+                            			<input type="email" class="form-control" id="inputEmail5" placeholder="Email" onblur="validate(validateEmail, this.value)">
+                                        <span id="inputEmail5Message" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<label for="inputPhone2" class="col-sm-2 control-label">Phone</label>
+                            		<div class="col-sm-10">
+                            			<input type="text" class="form-control" id="inputPhone2" placeholder="Phone" onblur="validate(validatePhone, this.value)">
+                                        <span id="inputPhoneMessage2" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<label for="inputAddress2" class="col-sm-2 control-label">Address</label>
+                            		<div class="col-sm-10">
+                                        <textarea class="form-control resizeable-box smallish-border-margin" id="inputAddress2" cols="5" name="inputAddress2"></textarea> 
+                                        <span id="inputAddressMessage2" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<div class="col-sm-10">
+                            		<label for="inputRegisterAccountPictureFile2" class="control-label">Profile Picture</label>
+                                        <input type="file" name="inputRegisterAccountPictureFile2" id="inputRegisterAccountPictureFile2" accept="image/*" onchange="createMyProfileAccountPictureBase64Img(this)">
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<div class="col-sm-10">
+                                        <img src="img/defaultProfilePicture.jpg" id="inputRegisterAccountPictureBase64Img2" height="64" width="64">
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<div class="col-sm-10">
+                                        <span id="inputAccountUpdateMessage" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                
+                            	<div class="form-group">
+                            		<div class="modal-footer">
+                            			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <input type="button" class="btn btn-primary" value="Update" onclick="updateAccount()">
+                            		</div>
+                            	</div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Forgot Password Modal -->
+            <div class="modal fade" id="forgotModal" tabindex="-1" role="dialog" aria-labelledby="forgotModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="forgotModalLabel">Change Password</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                        	<div class="form-group">
+                            	<label for="inputUser6" class="col-sm-2 control-label">Username</label>
+                            	<div class="col-sm-10">
+                            		<input type="text" class="form-control" id="inputUser6" placeholder="Username" onblur="validate(validateUsername, this.value)">
+                                	<span id="inputUser6Message" class="redValidationBox"></span>
+                            	</div>
+                        	</div>
+                            <form class="form-horizontal">
+                            	<div class="form-group">
+                            		<label for="inputEmail7" class="col-sm-2 control-label">Email</label>
+                            		<div class="col-sm-10">
+                            			<input type="email" class="form-control" id="inputEmail7" placeholder="Email" onblur="validate(validateEmail, this.value)">
+										<span id="inputEmail7Message" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<label for="inputPhone6" class="col-sm-2 control-label">Phone</label>
+                            		<div class="col-sm-10">
+                            			<input type="email" class="form-control" id="inputPhone6" placeholder="Phone" onblur="validate(validatePhone, this.value)">
+										<span id="inputPhone6Message" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                            	<div class="form-group">
+                            		<label for="inputPassword2" class="col-sm-2 control-label">Password</label>
+                            		<div class="col-sm-10">
+                            			<input type="Password" class="form-control" id="inputPassword2" placeholder="Password" onblur="validate(validatePassword, this.value)">
+										<span id="inputPassword2Message" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<label for="confirmPassword2" class="col-sm-2 control-label">Confirm Password</label>
+                            		<div class="col-sm-10">
+                            			<input type="Password" class="form-control" id="confirmPassword2" placeholder="Password" onblur="validate(validatePassword, this.value)">
+										<span id="inputconfirmPassword2Message" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                                <div class="form-group">
+                            		<div class="col-sm-10">
+                                        <span id="inputForgotPasswordResetMessage" class="redValidationBox"></span>
+                            		</div>
+                            	</div>
+                            	<div class="form-group">
+                            		<div class="modal-footer">
+                            			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            			<input type="button" class="btn btn-primary" value="Confirm" onclick="forgotPasswordReset()"></input>
+                            		</div>
+                            	</div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+			<footer>
+				<div class="row">
+					<div class="col-md-12">
+						<ul class="list-unstyled flat-list text-center">
+        					<li><a href="index.html" target="_self">Home</a> | </li>
+        					<li><a href="books.html" target="_self">Books</a> | </li>
+        					<li><a href="#" target="_self">Student Supplies</a> | </li>
+        					<li><a href="#" target="_self">Merchandise</a> | </li>
+        					<li><a href="#" target="_self">Computing</a> | </li>
+        					<li><a href="#" target="_self">Information</a> | </li>
+        					<li><a href="#" target="_self">View Cart</a> | </li>
+        					<li><a href="contact_us.html" title="General Enquiry">Requests &amp; Enquiries</a> | </li>
+        					<li><a href="#" target="_self">Help</a> | </li>
+      					</ul>
+      				</div>
+      			</div>
+			</footer>
+		</div>
+
+
+        <!-- BEGINNING OF TEMPLATES -->
+                <div id="loggedOutHeader" class="container mt-5" style="display:none">
+      				<ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+          					<a class="nav-link" href="#" data-toggle="modal" data-target="#forgotModal">Forgot Password</a>
+        				</li>
+        				<li class="nav-item">
+          					<a class="nav-link" href="#" data-toggle="modal" data-target="#registerModal">Register</a>
+        				</li>
+        				<li class="nav-item">
+          					<a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
+        				</li>
+      				</ul>
+                </div>
+
+                <div id="loggedInHeader" class="container mt-5" style="display:none">
+      				<ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+          					<a class="nav-link" href="#" data-toggle="modal" data-target="#myCartModal">My Cart</a>
+        				</li>
+        				<li class="nav-item">
+          					<a class="nav-link" href="#" data-toggle="modal" data-target="#myOrdersModal">My Orders</a>
+        				</li>
+        				<li class="nav-item">
+          					<a class="nav-link" href="#" data-toggle="modal" data-target="#changePasswordModal">Change Password</a>
+        				</li>
+        				<li class="nav-item">
+          					<a class="nav-link" href="#" data-toggle="modal" data-target="#logoutModal">Logout</a>
+        				</li>
+      				</ul>
+                </div>
+
+
+
+
+
+
+        <div id="userform" class="container mt-5" style="display:none">
+            <div class="mb-3">
+                <label for="user-Form-Name" class="form-label">Name:</label>
+	            <input type="text" class="form-control" id="user-Form-Name" name="user-Form-Name">
+            </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Password" class="form-label">Password:</label>
+		        <input type="password" class="form-control" id="user-Form-Password" name="user-Form-Password">
+	        </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Email" class="form-label">Email:</label>
+		        <input type="email" class="form-control" id="user-Form-Email" name="user-Form-Email">
+	        </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Gender" class="form-label">Gender:</label>
+		        <select class="form-select" id="user-Form-Gender" name="user-Form-Gender">
+	                <option value="Other">--Select--</option>
+	                <option value="Male">Male</option>
+	                <option value="Female">Female</option>
+		        </select>
+	        </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Country" class="form-label">Country:</label>
+		        <select class="form-select" id="user-Form-Country" name="user-Form-Country">
+	                <option value="India">India</option>
+	                <option value="Pakistan">Pakistan</option>
+	                <option value="Afghanistan">Afghanistan</option>
+	                <option value="Burma">Burma</option>
+	                <option value="Australia">Australia</option>
+	                <option value="Canada">Canada</option>
+	                <option value="Brazil">Brazil</option>
+	                <option value="France">France</option>
+	                <option value="Japan">Japan</option>
+	                <option value="Mexico">Mexico</option>
+	                <option value="South Africa">South Africa</option>
+	                <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="usersTable" class="container mt-5" style="display:none">
+            <div class="mb-3">
+                <h4 class="display-5 fw-bold text-body-emphasis">Users</h4>
+                <table class="collapseabletable">
+                    <thead>
+                        <tr>
+                            <td class="double-wall-padding collapseabletable">Username</td>
+                            <td class="double-wall-padding collapseabletable">Password</td>
+                            <td class="double-wall-padding collapseabletable">Email</td>
+                            <td class="double-wall-padding collapseabletable">Gender</td>
+                            <td class="double-wall-padding collapseabletable">Country</td>
+                            <td class="double-wall-padding collapseabletable">Edit box</td>
+                            <td class="double-wall-padding collapseabletable">Delete box</td>
+                        </tr>
+                    </thead>
+                    <tbody id="outputTable">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="addUserButton" class="container mt-5" style="display:none">
+              <input type="button" class="btn btn-primary" id="addUserButton" value="Add User" onclick="addUser()">
+          </div>
+
+        <div id="editUserButton" class="container mt-5" style="display:none">
+              <input type="button" class="btn btn-primary" id="editUserButton" value="Edit User" onclick="editUser()">
+          </div>         
+
+
+<!-- BEGINNING OF TEMPLATES -->
+<div id="templates" style="display:none">
+	<div id="loginAuthenticated">
+		Welcome, <span $id="authenticatedUsername"></span>!
+		<a href="javascript:logout(); void(0)">logout...</a>
+	</div>
+	<div id="loginRequest">
+		<table>
+			<tr>
+				<td>Username:</td>
+				<!--Validate function runs the username validation through an error checker, displaying an alert window if the username contains symbols-->
+				<td><input type="text" size="40" $id="username" onblur="validate(validateUsername, this.value)"></td>
+			</tr>
+			<tr>
+				<td>Password:</td>
+				<!--When the enter button is pressed, perrform the login javascript action-->
+				<!--Validate function runs the password validation through an error checker, displaying an alert window if the password does not meet the criteria:password must be 6 or more alphanumeric or - or $ characters-->
+				<td><input type="password" size="40" $id="password" onblur="validate(validatePassword, this.value)"
+				           onkeypress="handleReturn(event, login)"></td>
+			</tr>
+			<tr>
+				<td colspan=2>
+					<!--
+			//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login authenticated shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent -->
+					<a href="javascript:showCreateAccount(); void(0)">Create new account...</a>
+					<input type="button" value="Login" onclick="login()">
+					<span $id="loginMessage"></span>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id="loginCreate">
+		<table>
+			<tr>
+				<td>New username:</td>
+				<!--Validate function runs the username validation through an error checker, displaying an alert window if the username contains symbols-->
+				<td><input type="text" size="40" $id="newUsername" onblur="validate(validateUsername, this.value)"></td>
+			</tr>
+			<tr>
+				<td>New password:</td>
+				<!--Validate function runs the password validation through an error checker, displaying an alert window if the password does not meet the criteria:password must be 6 or more alphanumeric or - or $ characters-->
+				<td><input type="password" size="40" $id="newPassword" onblur="validate(validatePassword, this.value)"></td>
+			</tr>
+			<tr>
+				<td>Confirm password:</td>
+				<!--When the enter button is pressed, perform the createAccount javascript action-->
+				<td><input type="password" size="40" $id="confirmPassword"
+				           onkeypress="handleReturn(event, createAccount)"></td>
+			</tr>
+			<tr>
+				<td colspan=2>
+					<a href="javascript:cancelCreateAccount(); void(0)">Cancel</a><!--Exceute javascript command on click, compare this approach to a button with a Javascript command, which calls a subsequent Javascript command-->
+					<input type="button" value="Create" onclick="createAccount()">
+					<span $id="createAccountMessage"></span>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
+<!-- END OF TEMPLATES -->
+		<!-- This script block will be available on both client and server since the 
+			runat attribute is set to 'both'. -->
+		<script type="text/javascript" runat="both">
+			
+			function $(id) { return document.getElementById(id); }
+			
+		</script>
+		
+		<!-- These script blocks will execute only on the server because of the
+			runat="server" attributes. -->
+		<script type="text/javascript" runat="server">
+
+function getAuthenticatedUser()
+{
+	//Get the name from a jaxer session global variable
+	var username = Jaxer.session.username;
+	if (typeof username == "undefined") return null;
+	var rs = Jaxer.DB.execute("SELECT * FROM usersshopright WHERE username = ?", [username]);
+	if (rs.rows.length == 0)
+	{
+		return null;
+	}
+	//return the first row from the database query of matching usernames from a jaxer session global variable
+	return rs.rows[0];
+}
+
+//Set the global variable Jaxer.session.username to the username retrieved from the database query result.
+function makeAuthenticated(user)
+{
+	Jaxer.session.username = user.username;
+}
+
+//Application starts here
+function initAuthentication()
+{
+
+//step 1: initiate the database commands
+
+sql = "CREATE TABLE IF NOT EXISTS usersshopright " +
+	"( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+	", username VARCHAR(255) NOT NULL" +
+    ", email VARCHAR(255) NOT NULL" +
+	", password VARCHAR(255) NOT NULL" +
+    ", phone VARCHAR(255) NOT NULL" +
+    ", address VARCHAR(255) NOT NULL" +
+    ", picture VARCHAR(255) NOT NULL" +
+	", created DATETIME NOT NULL" +
+	", last_login DATETIME NOT NULL" +
+	", UNIQUE (username)" +
+	")";
+    
+Jaxer.DB.execute(sql);
+
+}
+
+// Step 2 decide which html template to show. Is the user logged in or not? Calld from client load function
+function initiateClientView(action)
+{
+	try
+	{
+		// Return the first row from the database query of matching usernames from a jaxer session global variable
+		var user = getAuthenticatedUser();
+
+		// Determine in the user exists
+		userexistsboolean = 0;
+		if (user)
+		{userexistsboolean = 1;}
+		else
+		{userexistsboolean = 0;}
+
+		// Drop the temporary storage table if it exists
+		sql = "DROP TABLE IF EXISTS shoprighttempstorage";
+
+		Jaxer.DB.execute(sql);
+
+		// Create a new temporary storage table with the required fields
+		sql = "CREATE TABLE IF NOT EXISTS shoprighttempstorage " +
+			"( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+			", username VARCHAR(255) NOT NULL" +
+			", userexists INTEGER NOT NULL CHECK(userexists IN (0, 1))" +
+			", email VARCHAR(255) NOT NULL" +
+			", phone VARCHAR(255) NOT NULL" +
+			", address VARCHAR(255) NOT NULL" +
+			", picture VARCHAR(255) NOT NULL" +
+			", UNIQUE (username)" +
+			")";
+
+		Jaxer.DB.execute(sql);
+
+		// Add the required fields into a single record entry in temporary storage
+		Jaxer.DB.execute("INSERT INTO shoprighttempstorage (username, userexists, email, phone, address, picture) VALUES (?, ?, ?, ?, ?, ?)",
+			[user.username, userexistsboolean, user.email, user.phone, user.address, user.picture]);
+		// Select all record from the database, there is only 1
+		rs = Jaxer.DB.execute("SELECT * FROM shoprighttempstorage");
+		// Select the single record from the database
+		var tempstorage = rs.rows[0];
+		// Return the temporary storage variable to the calling function
+		return tempstorage;
+	}
+	catch (e)
+	{
+		//Add the authentication failure to the error log
+		Jaxer.Log.error("Error trying to get authenticated user: " + e);
+	}
+}
+initiateClientView.proxy = true;
+
+//Upon exiting the input field (client side), or when performing account creation validation (server side), validate the username for alphanumeric or -
+function validateUsername(candidate)
+{
+	return /^[\w\-]+$/.test(candidate) ? "" : "Username must be alphanumeric or -";
+}
+validateUsername.runat = "both";
+
+//Upon exiting the input field (client side), or when performing account creation validation (server side), validate the username for alphanumeric or -
+function validateEmail(candidate)
+{
+    return /@.*\./i.test(candidate) ? "" : "Must be an email address";	
+}
+validateEmail.runat = "both";
+
+//Upon exiting the input field (client side), or when performing account creation validation (server side), validate the password must be 6 or more alphanumeric or - or $ characters
+function validatePassword(candidate)
+{
+	return /^[\w\-\$]{6,}$/.test(candidate) ? "" : "Password must be 6 or more alphanumeric or - or $ characters";
+}
+validatePassword.runat = "both";
+
+//Upon exiting the input field (client side), or when performing account creation validation (server side), validate the phone must be 8-12 numerals
+function validatePhone(candidate)
+{
+	return /^[\d]{8,12}/.test(candidate) ? "" : "Must be a phone number";
+}
+validatePhone.runat = "both";
+
+//Account creation validation 
+function saveCredentials(username, email, password, phone, address, picture)
+{
+	//Build an errors array
+	var error = "";
+	var errors = [];
+    error = validateUsername(username);
+	//If there is an error with the username, add the error to the errors array
+	if (error != "") errors.push(error);
+    error = validateEmail(email);
+	//If there is an error with the email, add the error to the errors array
+	if (error != "") errors.push(error);
+	error = validatePassword(password);
+	//If there is an error with the password, add the error to the errors array
+	if (error != "") errors.push(error);
+	error = validatePhone(phone);
+	//If there is an error with the phone, add the error to the errors array
+	if (error != "") errors.push(error);
+
+	//concatenate the array contents into a string //send the string back to the create account function as a string
+	if (errors.length > 0) return errors.join("; ");
+
+	//Check if the username already exists in the database.
+	var rs;
+	rs = Jaxer.DB.execute("SELECT * FROM usersshopright WHERE username = ?", [username]);
+	//If username already exists then, 
+	if (rs.rows.length != 0)
+	{   
+		return "username already in use";
+	}
+	
+	//If username does not exist then:
+	try
+	{
+		//Create a new current date and time
+		var now = new Date();
+		//Retrieve the username, password, and current date and time set the creates and last login date to now
+		Jaxer.DB.execute("INSERT INTO usersshopright (username, email, password, phone, address, picture, created, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+			[username, email, password, phone, address, picture, now, now]);
+		//Select the just created user from the database
+		rs = Jaxer.DB.execute("SELECT * FROM usersshopright WHERE username = ?", [username]);
+		//if at least 1 record is found then:
+		if (rs.rows.length != 0)
+		{
+			//set the first ecord of the database query to the user variable.
+			var user = rs.rows[0];
+			//Set the global variable Jaxer.session.username to the username retrieved from the database query result.
+			makeAuthenticated(user);
+			//return no error text
+			return "";
+		}
+		else
+		{
+			//if no records are found, create an error message, and add a log entry.
+			Jaxer.Log.warn("Could not find the user '" + username + "' that was just created!");
+			return "Could not find the account that should have just been created";
+		}
+	}
+	catch (e)
+	{
+		//if an error occurs, create an error message, and add a log entry.
+		Jaxer.Log.warn("User error when trying to save credentials: " + e);
+		return "Could not create username/password";
+	}
+}
+saveCredentials.proxy = true;
+
+//My Profile Upodate Validation 
+function updateCredentials(email, phone, address, picture)
+{
+	//Build an errors array
+	var error = "";
+	var errors = [];
+    error = validateEmail(email);
+	//If there is an error with the email, add the error to the errors array
+	if (error != "") errors.push(error);
+	error = validatePhone(phone);
+	//If there is an error with the phone, add the error to the errors array
+	if (error != "") errors.push(error);
+
+	//concatenate the array contents into a string //send the string back to the create account function as a string
+	if (errors.length > 0) return "error updating profile";
+
+	//Check if the username already exists in the database.
+	var rs;
+	rs = Jaxer.DB.execute("SELECT * FROM usersshopright WHERE username = ?", [Jaxer.session.username]);
+	//If username already exists then, 
+	if (rs.rows.length != 0)
+	{
+		var user = rs.rows[0];
+		//retrieve the first row of the database query, assign to user variable.
+			try {
+				Jaxer.DB.execute("UPDATE usersshopright SET email = ?, phone = ?, address = ?, picture = ? WHERE id = ?",
+                [email, phone, address, picture, user.id]);  
+				user = getAuthenticatedUser();
+				return user;     
+			} 
+			catch (e) {
+				return "error updating profile";
+			}
+	}
+}
+updateCredentials.proxy = true;
+	
+//Forgot passwoord reset validation 
+function forgotPasswordResetCredentials(username, email, phone, password, confirmPassword)
+{
+	userexistsmessagedata = "";
+
+	//Build an errors array
+	var error = "";
+	var errors = [];
+    error = validateUsername(username);
+	//If there is an error with the email, add the error to the errors array
+	if (error != "") errors.push(error);
+	error = validateEmail(email);
+	//If there is an error with the phone, add the error to the errors array
+	if (error != "") errors.push(error);
+	error = validatePhone(phone);
+	//If there is an error with the Address, add the error to the errors array
+	if (error != "") errors.push(error);
+	error = validatePassword(password);
+	//If there is an error with the Address, add the error to the errors array
+	if (error != "") errors.push(error);
+	error = validatePassword(confirmPassword);
+	//If there is an error with the Address, add the error to the errors array
+	if (error != "") errors.push(error);
+
+	//concatenate the array contents into a string //send the string back to the create account function as a string
+	if (errors.length > 0) {userexistsmessagedata = errors.join("; ");}
+
+	//Perform a databe query and find the username and password
+	var rs = Jaxer.DB.execute("SELECT * FROM usersshopright WHERE username = ? AND email = ? AND phone = ?",
+		[username, email, phone]);
+	//starting value
+	try
+	{
+		// Drop the temporary storage table if it exists
+		sql = "DROP TABLE IF EXISTS shoprighttempstorage";
+
+		Jaxer.DB.execute(sql);
+
+		// Create a new temporary storage table with the required fields
+		sql = "CREATE TABLE IF NOT EXISTS shoprighttempstorage " +
+			"( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+			", username VARCHAR(255) NOT NULL" +
+			", userexistsmessage VARCHAR(255) NOT NULL" +
+			", email VARCHAR(255) NOT NULL" +
+			", phone VARCHAR(255) NOT NULL" +
+			", address VARCHAR(255) NOT NULL" +
+			", picture VARCHAR(255) NOT NULL" +
+			", UNIQUE (username)" +
+			")";
+		
+		Jaxer.DB.execute(sql);
+
+		if (rs.rows.length === 0)
+		{
+			if(userexistsmessagedata === ""){userexistsmessagedata = "username not found";}
+		}
+		if (rs.rows.length > 0)
+		{
+			// assign the first record to the user variable
+			var user = rs.rows[0];
+			Jaxer.DB.execute("UPDATE usersshopright SET password = ? WHERE id = ?",
+                [password, user.id]);  
+		}
+		// Add the required fields into a single record entry in temporary storage
+		Jaxer.DB.execute("INSERT INTO shoprighttempstorage (username, userexistsmessage, email, phone, address, picture) VALUES (?, ?, ?, ?, ?, ?)",
+			["", userexistsmessagedata, "", "", "", ""]);
+		// Select all record from the database, there is only 1
+		rs = Jaxer.DB.execute("SELECT * FROM shoprighttempstorage");
+		// Select the single record from the database
+		var tempstorage = rs.rows[0];
+		// Return the temporary storage variable to the calling function
+		return tempstorage;
+	}
+	catch (e)
+	{
+		// Add the authentication failure to the error log
+		Jaxer.Log.error("Error trying to get authenticated user: " + e);
+		if(userexistsmessagedata != ""){userexistsmessagedata = "error changing password";}
+		// Add the required fields into a single record entry in temporary storage
+		Jaxer.DB.execute("INSERT INTO shoprighttempstorage (username, userexistsmessage, email, phone, address, picture) VALUES (?, ?, ?, ?, ?, ?)",
+			["", userexistsmessagedata, "", "", "", ""]);
+		// Select all record from the database, there is only 1
+		rs = Jaxer.DB.execute("SELECT * FROM shoprighttempstorage");
+		// Select the single record from the database
+		var tempstorage = rs.rows[0];
+		// Return the temporary storage variable to the calling function
+		return tempstorage;
+	}
+}
+forgotPasswordResetCredentials.proxy = true;
+
+//When the login function is called from the user clicking the login button, validate the username and pasword in theinpt fields
+function checkCredentials(username, password)
+{
+	//Perform a databe query and find the username and password
+	var rs = Jaxer.DB.execute("SELECT * FROM usersshopright WHERE username = ? AND password = ?",
+		[username, password]);
+	//starting value
+	userexistsmessagedata = "";
+	try
+	{
+		// Drop the temporary storage table if it exists
+		sql = "DROP TABLE IF EXISTS shoprighttempstorage";
+
+		Jaxer.DB.execute(sql);
+
+		// Create a new temporary storage table with the required fields
+		sql = "CREATE TABLE IF NOT EXISTS shoprighttempstorage " +
+			"( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+			", username VARCHAR(255) NOT NULL" +
+			", userexistsmessage VARCHAR(255) NOT NULL" +
+			", email VARCHAR(255) NOT NULL" +
+			", phone VARCHAR(255) NOT NULL" +
+			", address VARCHAR(255) NOT NULL" +
+			", picture VARCHAR(255) NOT NULL" +
+			", UNIQUE (username)" +
+			")";
+		
+		Jaxer.DB.execute(sql);
+
+		if (rs.rows.length === 0)
+		{
+			
+			userexistsmessagedata = "username not found or password does not match";
+			// Add the required fields into a single record entry in temporary storage
+			Jaxer.DB.execute("INSERT INTO shoprighttempstorage (username, userexistsmessage, email, phone, address, picture) VALUES (?, ?, ?, ?, ?, ?)",
+				["", userexistsmessagedata, "", "", "", ""]);
+		}
+		if (rs.rows.length > 0)
+		{
+			// assign the first record to the user variable
+			var user = rs.rows[0];
+			// Set the global variable Jaxer.session.username to the username retrieved from the database query result.
+			makeAuthenticated(user);
+			// Add the required fields into a single record entry in temporary storage
+			Jaxer.DB.execute("INSERT INTO shoprighttempstorage (username, userexistsmessage, email, phone, address, picture) VALUES (?, ?, ?, ?, ?, ?)",
+				[user.username, userexistsmessagedata, user.email, user.phone, user.address, user.picture]);
+		}
+		// Select all record from the database, there is only 1
+		rs = Jaxer.DB.execute("SELECT * FROM shoprighttempstorage");
+		// Select the single record from the database
+		var tempstorage = rs.rows[0];
+		// Return the temporary storage variable to the calling function
+		return tempstorage;
+	}
+	catch (e)
+	{
+		// Add the authentication failure to the error log
+		Jaxer.Log.error("Error trying to get authenticated user: " + e);
+	}
+}
+checkCredentials.proxy = true;
+
+//When the user logs out, delete the jaxer session username global variable
+function removeCredentials()
+{
+	delete Jaxer.session.username;
+}
+removeCredentials.proxy = true;
+
+		</script>
+
+
+		<!-- This script block is a standard script block and runs on the browser only -->
+		<script type="text/javascript">
+		
+// Clientside functions
+
+        //views
+        function viewLoggedIn()
+        {
+            document.getElementById("loggedInHeader").style.display = "flex";
+            document.getElementById("loggedOutHeader").style.display = "none";
+        }
+    
+        function viewLoggedOut()
+        {
+            document.getElementById("loggedInHeader").style.display = "none";
+            document.getElementById("loggedOutHeader").style.display = "flex";
+        }
+
+async function performActionsWithDelay() {
+  console.log("Starting action 1...");
+  initiateClientView.async(prefillView, "action");
+}
+
+window.onload = function() {
+
+	/*	document.getElementById("headerTag").innerHTML = loadHeaderFromFile; // Load header from fie	
+        document.getElementById("userFormTag").innerHTML = loadUserFormFromFile; // Load user form from fie	*/
+
+performActionsWithDelay();
+    }
+
+function prefillView(msg)
+{
+	if (msg.userexists == 0)
+	{
+		//show the logged out view
+        viewLoggedOut();
+	}
+	if (msg.userexists == 1)
+	{
+		//Show the logged in view
+        viewLoggedIn();
+		//Change the myprofile button to reflect the username
+		document.getElementById("myProfileLink").textContent = msg.username;
+
+		document.getElementById("inputUser5").textContent = msg.username;
+		document.getElementById("inputEmail5").value = msg.email;
+		document.getElementById("inputPhone2").value = msg.phone;
+		document.getElementById("inputAddress2").textContent = msg.address;
+		document.getElementById("inputRegisterAccountPictureBase64Img2").src = msg.picture;
+	}
+}	
+
+
+
+//sanitiseSQLInput function validation. When performing create account validation (client side)
+/*
+function sanitiseSQLInput(action)
+{
+	var sanitiseSQLInputTextContents1 = action;
+	var sanitiseSQLInputTextContents2 = sanitiseSQLInputTextContents1.replace(/\'/,"\\'");
+	var sanitiseSQLInputTextContents3 = sanitiseSQLInputTextContents2.replace(/\\'/,"\\\\");
+	var sanitiseSQLInputTextContents4 = sanitiseSQLInputTextContents3.replace(/\r'/,"\\r");
+	var sanitiseSQLInputTextContents5 = sanitiseSQLInputTextContents4.replace(/\n'/,"\\n");
+	var sanitiseSQLInputTextContents6 = sanitiseSQLInputTextContents5.replace(/\t'/,"\\t");	
+	return sanitiseSQLInputTextContents6;
+};*/
+
+function validate(validationFunction, candidate)
+{
+	if (candidate == "") return; // Not done filling this out, perhaps
+	var error = validationFunction(candidate); //validation function is the name of the function to be called, candiate is the criteria
+	if (error != "")
+	{
+		//display error box at top of screen
+		alert(error);
+	}
+}
+
+//When the user clicks the login button or the enter key in the password box:
+function login()
+{
+	//Get the username and password from he input fields
+	var username = document.getElementById("inputUser3").value;
+	var password = document.getElementById("inputPassword").value;
+
+    document.getElementById("inputUser3Message").textContent = validateUsername(username);
+    setTimeout("document.getElementById(" + "\"inputUser3Message\"" + ").textContent = '" + "'", 4000);
+
+    document.getElementById("inputPasswordMessage").textContent = validatePassword(password);
+    setTimeout("document.getElementById(" + "\"inputPasswordMessage\"" + ").textContent = '" + "'", 4000);    
+
+	console.log("loading");
+
+	password = sha256(password);
+
+    checkCredentials.async(accountLoginErrorView, username, password);
+}
+
+// logincreate html template
+function accountLoginErrorView(msg)
+{
+	if (msg.userexistsmessage === "username not found or password does not match")
+	{
+ 		console.log("bad");
+    	document.getElementById("inputAccountLoginMessage").textContent = msg.userexistsmessage;
+    	setTimeout("document.getElementById(" + "\"inputAccountLoginMessage\"" + ").textContent = '" + "'", 4000);
+	}
+	if(msg.userexistsmessage == "")
+	{
+		//Set the authenticatedUsername field within the loginAuthenticated html template to show the username from the input field after 0ms 
+		document.getElementById("myProfileLink").textContent = msg.username;
+
+		document.getElementById("inputUser5").textContent = msg.username;
+		document.getElementById("inputEmail5").value = msg.email;
+		document.getElementById("inputPhone2").value = msg.phone;
+		document.getElementById("inputAddress2").textContent = msg.address;
+		document.getElementById("inputRegisterAccountPictureBase64Img2").src = msg.picture;
+
+        //Change the header to show the user logged in
+        viewLoggedIn();
+        //hide the login modal
+        $('#loginModal').modal('hide');
+        console.log("good");
+	}
+}
+
+//user clicks on the log out button from the loginAuthenticated template
+function logout()
+{
+    //Delete the jaxer session username global variable
+	removeCredentials();
+    viewLoggedOut();
+    $('#logoutModal').modal('hide');
+}
+
+// loginRequest html template
+function showCreateAccount()
+{
+	//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login auenthicates shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent 
+	fromTemplate('loginComponent', 'loginCreate');
+}
+
+// logincreate html template
+function createAccount()
+{
+	// Retrieve username and password from the html template
+    var username = document.getElementById("inputUser4").value;
+	var email = document.getElementById("inputEmail4").value;
+	var password = document.getElementById("inputPassword1").value;
+    var phone = document.getElementById("inputPhone").value;
+    var address = document.getElementById("inputAddress").value;
+    var picture = document.getElementById("inputRegisterAccountPictureBase64Img").src;
+
+    //Display red textwith the error in it when a validation error occurs
+    document.getElementById("inputUser4Message").textContent = validateUsername(username);
+    setTimeout("document.getElementById(" + "\"inputUser4Message\"" + ").textContent = '" + "'", 4000);
+
+    document.getElementById("inputEmail4Message").textContent = validateEmail(email);
+    setTimeout("document.getElementById(" + "\"inputEmail4Message\"" + ").textContent = '" + "'", 4000);
+
+    document.getElementById("inputPassword1Message").textContent = validatePassword(password);
+    setTimeout("document.getElementById(" + "\"inputPassword1Message\"" + ").textContent = '" + "'", 4000);
+
+    document.getElementById("inputPhoneMessage").textContent = validatePhone(phone);
+    setTimeout("document.getElementById(" + "\"inputPhoneMessage\"" + ").textContent = '" + "'", 4000);
+
+	password = sha256(password);
+
+	// Perform validation
+	//saveCredentials(username, email, password, phone, address, picture);
+    saveCredentials.async(accountRegisterErrorView, username, email, password, phone, address, picture);
+	//if no error text was received through the validation process then 
+}
+
+// logincreate html template
+function accountRegisterErrorView(errorResult)
+{
+	if (errorResult == "")
+	{
+        //Set the authenticatedUsername field within the loginAuthenticated html template to show the username from the input field after 0ms 
+        document.getElementById("myProfileLink").textContent = document.getElementById("inputUser4").value;
+
+		document.getElementById("inputUser5").textContent = document.getElementById("inputUser4").value;
+		document.getElementById("inputEmail5").value = document.getElementById("inputEmail4").value;
+		document.getElementById("inputPhone2").value = document.getElementById("inputPhone").value;
+		document.getElementById("inputAddress2").textContent = document.getElementById("inputAddress").value;
+		document.getElementById("inputRegisterAccountPictureBase64Img2").src = document.getElementById("inputRegisterAccountPictureBase64Img2").src;
+
+        //Change the header to show the user logged in
+        viewLoggedIn();
+        //hide the login modal
+        $('#registerModal').modal('hide');
+        console.log("good");
+	}
+	else
+	{
+
+ console.log("bad");
+
+    document.getElementById("inputAccountCreateMessage").textContent = errorResult;
+    setTimeout("document.getElementById(" + "\"inputAccountCreateMessage\"" + ").textContent = '" + "'", 4000);
+	}
+}
+
+// update Account Profile html template
+function updateAccount()
+{
+	// Retrieve username and password from the html template
+	var email = document.getElementById("inputEmail5").value;
+    var phone = document.getElementById("inputPhone2").value;
+    var address = document.getElementById("inputAddress2").value;
+    var picture = document.getElementById("inputRegisterAccountPictureBase64Img2").src;
+
+    //Display red textwith the error in it when a validation error occurs
+    document.getElementById("inputEmail5Message").textContent = validateEmail(email);
+    setTimeout("document.getElementById(" + "\"inputEmail5Message\"" + ").textContent = '" + "'", 4000);
+
+    document.getElementById("inputPhoneMessage2").textContent = validatePhone(phone);
+    setTimeout("document.getElementById(" + "\"inputPhoneMessage2\"" + ").textContent = '" + "'", 4000);
+
+	// Perform validation
+	//saveCredentials(username, email, password, phone, address, picture);
+    updateCredentials.async(accountUpdateErrorView, email, phone, address, picture);
+	//if no error text was received through the validation process then 
+}
+
+// logincreate html template
+function accountUpdateErrorView(msg)
+{
+	if (msg == "error updating profile")
+	{
+ 	console.log("bad");
+
+    document.getElementById("inputAccountUpdateMessage").textContent = msg;
+    setTimeout("document.getElementById(" + "\"inputAccountUpdateMessage\"" + ").textContent = '" + "'", 4000);
+	}
+	else
+	{
+		//Set the authenticatedUsername field within the loginAuthenticated html template to show the username from the input field after 0ms 
+		document.getElementById("inputEmail5").value = msg.email;
+		document.getElementById("inputPhone2").value = msg.phone;
+		document.getElementById("inputAddress2").textContent = msg.address;
+		document.getElementById("inputRegisterAccountPictureBase64Img2").src = msg.picture;		
+
+        //hide the login modal
+        $('#myProfileModal').modal('hide');
+        console.log("good");
+	}
+}
+
+// update Account Profile html template
+function forgotPasswordReset()
+{
+	// Retrieve username and password from the html template
+	var username = document.getElementById("inputUser6").value;
+	var email = document.getElementById("inputEmail7").value;
+    var phone = document.getElementById("inputPhone6").value;
+    var password = document.getElementById("inputPassword2").value;
+    var confirmPassword = document.getElementById("confirmPassword2").value;
+
+    //Display red textwith the error in it when a validation error occurs
+    document.getElementById("inputUser6Message").textContent = validateUsername(username);
+    setTimeout("document.getElementById(" + "\"inputUser6Message\"" + ").textContent = '" + "'", 4000);
+
+    document.getElementById("inputEmail7Message").textContent = validateEmail(email);
+    setTimeout("document.getElementById(" + "\"inputEmail7Message\"" + ").textContent = '" + "'", 4000);
+
+    document.getElementById("inputPhone6Message").textContent = validatePhone(phone);
+    setTimeout("document.getElementById(" + "\"inputPhone6Message\"" + ").textContent = '" + "'", 4000);
+
+    document.getElementById("inputPassword2Message").textContent = validatePassword(password);
+    setTimeout("document.getElementById(" + "\"inputPassword2Message\"" + ").textContent = '" + "'", 4000);
+
+    document.getElementById("inputconfirmPassword2Message").textContent = validatePassword(confirmPassword);
+    setTimeout("document.getElementById(" + "\"inputconfirmPassword2Message\"" + ").textContent = '" + "'", 4000);
+
+	password = sha256(password);
+
+	// Perform validation
+	//saveCredentials(username, email, password, phone, address, picture);
+    forgotPasswordResetCredentials.async(forgotPasswordErrorView, username, email, phone, password, confirmPassword);
+	//if no error text was received through the validation process then 
+}
+
+// logincreate html template
+function forgotPasswordErrorView(msg)
+{
+	if (msg.userexistsmessage == "error updating password")
+	{
+ 	console.log("bad");
+
+    document.getElementById("inputForgotPasswordResetMessage").textContent = msg.userexistsmessage;
+    setTimeout("document.getElementById(" + "\"inputForgotPasswordResetMessage\"" + ").textContent = '" + "'", 4000);
+	}
+	if (msg.userexistsmessage == "")
+	{
+//hide the login modal
+        $('#forgotModal').modal('hide');
+        console.log("good");
+	}
+	else
+	{
+        console.log(msg);
+	}
+}
+
+
+//The cancel button is clicked, return to login request screen
+function cancelCreateAccount()
+{
+	//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login auenthicates shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent 
+	fromTemplate('loginComponent', 'loginRequest');
+}
+
+function handleReturn(evt, handler)
+{
+	if (!evt) evt = window.event;
+	if ((evt.which && evt.which == 13) || 
+	    (evt.keyCode && evt.keyCode == 13))
+	{
+		handler();
+		return false; 
+	}
+}
+
+//Regsiter account image picture
+function createRegisterAccountPictureBase64Img(element) {
+    var picturefile = element.files[0];
+    var fileReaderObject = new FileReader();
+	fileReaderObject.readAsDataURL(picturefile); // Start the reader
+    fileReaderObject.onloadend = function() {
+        $("#inputRegisterAccountPictureBase64Img").attr("src", fileReaderObject.result);
+	    fileReaderObject.abort(); // Close the reader
+	}
+};
+
+//MyProfile account image picture
+function createMyProfileAccountPictureBase64Img(element) {
+    var picturefile = element.files[0];
+    var fileReaderObject = new FileReader();
+	fileReaderObject.readAsDataURL(picturefile); // Start the reader
+    fileReaderObject.onloadend = function() {
+        $("#inputRegisterAccountPictureBase64Img2").attr("src", fileReaderObject.result);
+	    fileReaderObject.abort(); // Close the reader
+	}
+};
+
+		</script>
+	</body>
+</html>
+
+
+
+
+
+
+
+        <!-- BEGINNING OF TEMPLATES -->
+	<div id="loginRequest">
+		<table>
+			<tr>
+				<td>Username:</td>
+				<!--Validate function runs the username validation through an error checker, displaying an alert window if the username contains symbols-->
+				<td><input type="text" size="40" $id="username" onblur="validate(validateUsername, this.value)"></td>
+			</tr>
+			<tr>
+				<td>Password:</td>
+				<!--When the enter button is pressed, perrform the login javascript action-->
+				<!--Validate function runs the password validation through an error checker, displaying an alert window if the password does not meet the criteria:password must be 6 or more alphanumeric or - or $ characters-->
+				<td><input type="password" size="40" $id="password" onblur="validate(validatePassword, this.value)"
+				           onkeypress="handleReturn(event, login)"></td>
+			</tr>
+			<tr>
+				<td colspan=2>
+					<!--
+			//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login authenticated shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent -->
+					<a href="javascript:showCreateAccount(); void(0)">Create new account...</a>
+					<input type="button" value="Login" onclick="login()">
+					<span $id="loginMessage"></span>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id="loginCreate">
+		<table>
+			<tr>
+				<td>New username:</td>
+				<!--Validate function runs the username validation through an error checker, displaying an alert window if the username contains symbols-->
+				<td><input type="text" size="40" $id="newUsername" onblur="validate(validateUsername, this.value)"></td>
+			</tr>
+			<tr>
+				<td>New password:</td>
+				<!--Validate function runs the password validation through an error checker, displaying an alert window if the password does not meet the criteria:password must be 6 or more alphanumeric or - or $ characters-->
+				<td><input type="password" size="40" $id="newPassword" onblur="validate(validatePassword, this.value)"></td>
+			</tr>
+			<tr>
+				<td>Confirm password:</td>
+				<!--When the enter button is pressed, perform the createAccount javascript action-->
+				<td><input type="password" size="40" $id="confirmPassword"
+				           onkeypress="handleReturn(event, createAccount)"></td>
+			</tr>
+			<tr>
+				<td colspan=2>
+					<a href="javascript:cancelCreateAccount(); void(0)">Cancel</a><!--Exceute javascript command on click, compare this approach to a button with a Javascript command, which calls a subsequent Javascript command-->
+					<input type="button" value="Create" onclick="createAccount()">
+					<span $id="createAccountMessage"></span>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+
+
+
+
+
+
+
+
+
+        <div id="userform" class="container mt-5" style="display:none">
+            <div class="mb-3">
+                <label for="user-Form-Name" class="form-label">Name:</label>
+	            <input type="text" class="form-control" id="user-Form-Name" name="user-Form-Name">
+            </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Password" class="form-label">Password:</label>
+		        <input type="password" class="form-control" id="user-Form-Password" name="user-Form-Password">
+	        </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Email" class="form-label">Email:</label>
+		        <input type="email" class="form-control" id="user-Form-Email" name="user-Form-Email">
+	        </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Gender" class="form-label">Gender:</label>
+		        <select class="form-select" id="user-Form-Gender" name="user-Form-Gender">
+	                <option value="Other">--Select--</option>
+	                <option value="Male">Male</option>
+	                <option value="Female">Female</option>
+		        </select>
+	        </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Country" class="form-label">Country:</label>
+		        <select class="form-select" id="user-Form-Country" name="user-Form-Country">
+	                <option value="India">India</option>
+	                <option value="Pakistan">Pakistan</option>
+	                <option value="Afghanistan">Afghanistan</option>
+	                <option value="Burma">Burma</option>
+	                <option value="Australia">Australia</option>
+	                <option value="Canada">Canada</option>
+	                <option value="Brazil">Brazil</option>
+	                <option value="France">France</option>
+	                <option value="Japan">Japan</option>
+	                <option value="Mexico">Mexico</option>
+	                <option value="South Africa">South Africa</option>
+	                <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="usersTable" class="container mt-5" style="display:none">
+            <div class="mb-3">
+                <h4 class="display-5 fw-bold text-body-emphasis">Users</h4>
+                <table class="collapseabletable">
+                    <thead>
+                        <tr>
+                            <td class="double-wall-padding collapseabletable">Username</td>
+                            <td class="double-wall-padding collapseabletable">Password</td>
+                            <td class="double-wall-padding collapseabletable">Email</td>
+                            <td class="double-wall-padding collapseabletable">Gender</td>
+                            <td class="double-wall-padding collapseabletable">Country</td>
+                            <td class="double-wall-padding collapseabletable">Edit box</td>
+                            <td class="double-wall-padding collapseabletable">Delete box</td>
+                        </tr>
+                    </thead>
+                    <tbody id="outputTable">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="addUserButton" class="container mt-5" style="display:none">
+              <input type="button" class="btn btn-primary" id="addUserButton" value="Add User" onclick="addUser()">
+          </div>
+
+        <div id="editUserButton" class="container mt-5" style="display:none">
+              <input type="button" class="btn btn-primary" id="editUserButton" value="Edit User" onclick="editUser()">
+          </div>          
+<!-- END OF TEMPLATES -->
+
+    </body>
+
+    <script>
+        //views
+        function viewIndex()
+        {
+            document.getElementById("usersTable").style.display = "none";
+            document.getElementById("userform").style.display = "none";
+            document.getElementById("addUserButton").style.display = "none";
+            document.getElementById("editUserButton").style.display = "none";
+        }
+    
+        function viewAddUser()
+        {
+    	    $('user-Form-Name').value = "";
+            $('user-Form-Password').value = "";
+            $('user-Form-Email').value = "";
+            $('user-Form-Gender').value = "";
+            $('user-Form-Country').value = "";
+            document.getElementById("usersTable").style.display = "none";
+            document.getElementById("userform").style.display = "block";
+            document.getElementById("addUserButton").style.display = "block";
+            document.getElementById("editUserButton").style.display = "none";
+        }
+    
+        function viewShowUsers()
+        {
+            document.getElementById("usersTable").style.display = "block";
+            document.getElementById("userform").style.display = "none";
+            document.getElementById("addUserButton").style.display = "none";
+            document.getElementById("editUserButton").style.display = "none";
+            databaseViewUsers.async(addUserToUI, "action");
+        }
+    
+        function viewEditUser()
+        {
+            document.getElementById("usersTable").style.display = "none";
+            document.getElementById("userform").style.display = "block";
+            document.getElementById("addUserButton").style.display = "none";
+            document.getElementById("editUserButton").style.display = "block";
+        }
+
+        function editUser()
+    	{
+            editUserButton.value = "editing user...";
+    		editUserButton.disabled = true;
+    
+    		var userFormName = $('user-Form-Name').value;
+            var userFormPassword = $('user-Form-Password').value;
+            var userFormEmail = $('user-Form-Email').value;
+            var userFormGender = $('user-Form-Gender').value;
+            var userFormCountry = $('user-Form-Country').value;
+    
+            if(userFormName == "" || userFormPassword == "" || userFormEmail == "" || userFormGender == "" || userFormCountry == "")
+            {
+                alert("One of the fields is blank, please enter values for all fields.");
+                editUserButton.value = "edit User";
+                editUserButton.disabled = false;
+                return;
+            }
+    
+    		saveUserInDBEditUser.async(databaseFinishedEditUser, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry);
+    	}
+    			
+    	function databaseFinishedEditUser(msg)
+    	{
+    		// Set the button state and label back to normal
+            editUserButton.value = "edit User";
+            editUserButton.disabled = false;
+    
+            switch (msg) {
+    		    case "Successfully edited to database":
+                    var pom = document.createElement('a');
+                    pom.href = "javascript:viewIndex(); void(0)";
+                    document.body.appendChild(pom);
+                    pom.click();
+                    pom.parentNode.removeChild(pom);
+    		        break;
+    		    default:
+                alert(msg);
+    		}   
+    	}
+    			
+    	/*
+    	 * We override the ontimeoutAsync function so that we can know if we timed out
+    	 * in trying to talk to the server.
+    	 */
+    	Jaxer.Callback.ontimeoutAsync = function(xhr, timeout, extra)
+    	{
+    		databaseFinishedAddUser("The request timed out after " + timeout/1000 + " seconds, aborting.");
+    	}
+    
+        function addUser()
+    	{
+            addUserButton.value = "Adding user...";
+    		addUserButton.disabled = true;
+    
+    		var userFormName = $('user-Form-Name').value;
+            var userFormPassword = $('user-Form-Password').value;
+            var userFormEmail = $('user-Form-Email').value;
+            var userFormGender = $('user-Form-Gender').value;
+            var userFormCountry = $('user-Form-Country').value;
+    
+            if($('user-Form-Name').value == "" || $('user-Form-Password').value == "" || $('user-Form-Email').value == "" || $('user-Form-Gender').value == "" || $('user-Form-Country').value == "")
+            {
+                alert("One of the fields is blank, please enter values for all fields.");
+                addUserButton.value = "Add User";
+                addUserButton.disabled = false;
+                return;
+            }
+    
+            var newId = Math.ceil(1000000000 * Math.random());
+    		saveUserInDBAddUser.async(databaseFinishedAddUser, newId, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry);
+    	}
+    			
+    	function databaseFinishedAddUser(msg)
+    	{
+    		// Set the button state and label back to normal
+            addUserButton.value = "Add User";
+            addUserButton.disabled = false;
+     
+            switch (msg) {
+    		    case "Successfully added to database":
+                    var pom = document.createElement('a');
+                    pom.href = "javascript:viewIndex(); void(0)";
+                    document.body.appendChild(pom);
+                    pom.click();
+                    pom.parentNode.removeChild(pom);
+    			    break;
+    		    default:
+                    alert(msg);
+    		}        
+    	}
+    
+        function addUserToUI(resultSet)
+    	{
+            $("outputTable").innerHTML = "";
+    		for (var i=0; i<resultSet.rows.length; i++)
+    		{
+                var task = resultSet.rows[i];
+
+                var userFormNametd = `<td class="double-wall-padding collapseabletable">${task.userFormName}</td>
+                    <td class="double-wall-padding collapseabletable">${task.userFormPassword}</td>
+                    <td class="double-wall-padding collapseabletable">${task.userFormEmail}</td>
+                    <td class="double-wall-padding collapseabletable">${task.userFormGender}</td>
+                    <td class="double-wall-padding collapseabletable">${task.userFormCountry}</td>
+                    <td class="double-wall-padding collapseabletable"><input id="editUserCheckBox_${task.id}" type="checkbox" title="done" onclick="editUserTask(${task.id})" class="double-wall-padding collapseabletable"></td>
+                    <td class="double-wall-padding collapseabletable"><input id="deleteUserCheckBox_${task.id}" type="checkbox" title="done" onclick="completeTask(${task.id})" class="double-wall-padding collapseabletable"></td>`;
+
+				var tr = document.createElement("tr");
+				tr.id = "task_" + task.id;
+				tr.className = "task";
+
+                tr.innerHTML = userFormNametd;
+
+                $("outputTable").insertBefore(tr, $("outputTable").firstChild);
+    		}
+        }
+    
+    	function completeTask(taskId)
+    	{
+    	    var tr = $("task_" + taskId);
+    		tr.parentNode.removeChild(tr);
+    		deleteSavedTask(taskId);
+    	}
+    
+    	function editUserTask(taskId)
+    	{
+    		var tr = $("task_" + taskId);
+    		editSavedTask.async(databaseFinishedSelectUser, taskId);
+    	}
+    
+    	function databaseFinishedSelectUser(msg)
+    	{
+    		$('user-Form-Name').value = msg.userFormName;
+            $('user-Form-Password').value = msg.userFormPassword;
+            $('user-Form-Email').value = msg.userFormEmail;
+            $('user-Form-Gender').value = msg.userFormGender;
+            $('user-Form-Country').value = msg.userFormCountry;
+            viewEditUser();          
+    	}
+    </script>
+
+	<script type="text/javascript" runat="both">
+    	function $(id) 
+    	{ 
+    		return document.getElementById(id); 
+    	}
+    
+        function fromTemplate(idTarget, idSource) { $(idTarget).innerHTML = $(idSource).innerHTML.replace(/(\W)\$id\=/g, "$1id="); }
+	</script>
+
+	<script type="text/javascript" runat="server">
+        window.onserverload = function()
+		{
+            var addUsersSql = "CREATE TABLE IF NOT EXISTS users " +
+            "( id INTEGER NOT NULL" +
+            ", userFormName VARCHAR(255)" +
+            ", userFormPassword VARCHAR(255)" +
+            ", userFormEmail VARCHAR(255)" +
+            ", userFormGender VARCHAR(255)" +
+            ", userFormCountry VARCHAR(255)" +
+            ", created DATETIME NOT NULL" +
+            ")";
+			Jaxer.DB.execute(addUsersSql);
+
+
+sql = "CREATE TABLE IF NOT EXISTS usersshopright " +
+	"( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+	", username VARCHAR(255) NOT NULL" +
+    ", email VARCHAR(255) NOT NULL" +
+	", password VARCHAR(255) NOT NULL" +
+    ", phone VARCHAR(255) NOT NULL" +
+    ", address VARCHAR(255) NOT NULL" +
+    ", picture VARCHAR(255) NOT NULL" +
+	", created DATETIME NOT NULL" +
+	", last_login DATETIME NOT NULL" +
+	", UNIQUE (username)" +
+	")";
+    
+Jaxer.DB.execute(sql);
+
+            
+		}
+
+		function deleteSavedTask(id)
+		{
+			Jaxer.DB.execute("DELETE FROM users WHERE id = ?", [id]);
+		}
+		deleteSavedTask.proxy = true;
+
+        function makeEditSelection(Selection)
+        {
+	        Jaxer.session.usertoEdit = Selection.id;
+        }
+
+        function removeEditSelection()
+        {
+        	delete Jaxer.session.usertoEdit;
+        }
+    </script>
+
+    <script type="text/javascript" runat="server-proxy">
+        function editSavedTask(id)
+        {
+            var resultSet = Jaxer.DB.execute("SELECT * FROM users WHERE id = ?", [id]);
+			var task = resultSet.rows[0];
+            makeEditSelection(task);
+			return task;
+        }
+
+        function saveUserInDBAddUser(id, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry)
+        {
+			try {
+				Jaxer.DB.execute("INSERT INTO users (id, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, created)" +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                [id, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, new Date()]);
+			} 
+			catch (e) {
+				return e.toString();
+			}
+			return "Successfully added to database";
+        }
+
+        function saveUserInDBEditUser(userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry)
+        {
+			try {
+                user = Jaxer.session.usertoEdit;
+
+				Jaxer.DB.execute("UPDATE users SET userFormName = ?, userFormPassword = ?, userFormEmail = ?, userFormGender = ?, userFormCountry = ? WHERE id = ?",
+                [userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, user]);      
+			} 
+			catch (e) {
+				return e.toString();
+			}
+
+            removeEditSelection();
+			return "Successfully edited to database";
+        }
+
+        function databaseViewUsers(action)
+        {
+			var resultSet = Jaxer.DB.execute("SELECT * FROM users ORDER BY created");
+			return resultSet;
+        }    
+
+
+
+
+        
+    </script>
+</html>

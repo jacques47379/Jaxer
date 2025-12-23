@@ -1,0 +1,15 @@
+[Tue Dec 23 23:54:10.575496 2025] [:notice] [pid 4984:tid 272] ModJaxer/1.0.3.4547: Initialization.
+[Tue Dec 23 23:54:10.630784 2025] [core:warn] [pid 4984:tid 272] AH00098: pid file E:/Aptana Jaxer Apache/Jaxer/Apache2-4Build/Apache22/logs/httpd.pid overwritten -- Unclean shutdown of previous Apache run?
+[Tue Dec 23 23:54:10.632784 2025] [:notice] [pid 4984:tid 272] ModJaxer/1.0.3.4547: Initialization.
+[Tue Dec 23 23:54:10.634783 2025] [mpm_winnt:notice] [pid 4984:tid 272] AH00455: Apache/2.4.66 (Win32) ModJaxer/1.0.3.4547 configured -- resuming normal operations
+[Tue Dec 23 23:54:10.634783 2025] [mpm_winnt:notice] [pid 4984:tid 272] AH00456: Server built: Dec  6 2025 07:13:54
+[Tue Dec 23 23:54:10.634783 2025] [core:notice] [pid 4984:tid 272] AH00094: Command line: 'Apache22\\bin\\httpd -d E:/Aptana Jaxer Apache/Jaxer/Apache2-4Build/Apache22'
+[Tue Dec 23 23:54:10.647851 2025] [mpm_winnt:notice] [pid 4984:tid 272] AH00418: Parent: Created child process 28488
+[Tue Dec 23 23:54:13.031750 2025] [:notice] [pid 28488:tid 556] ModJaxer/1.0.3.4547: Initialization.
+[Tue Dec 23 23:54:13.065244 2025] [:notice] [pid 28488:tid 556] ModJaxer/1.0.3.4547: Initialization.
+[Tue Dec 23 23:54:13.065244 2025] [:notice] [pid 28488:tid 556] mod_jaxer: initialize_child: creating connection pool for server:host=localhost(line 0 @(null))
+[Tue Dec 23 23:54:13.067646 2025] [:notice] [pid 28488:tid 556] mod_jaxer: connection pool (min=6 keep=64 max=64) created
+[Tue Dec 23 23:54:13.077662 2025] [mpm_winnt:notice] [pid 28488:tid 556] AH00354: Child: Starting 64 worker threads.
+[Wed Dec 24 01:04:05.730848 2025] [authz_core:error] [pid 28488:tid 1224] [client ::1:59239] AH01630: client denied by server configuration: E:/Aptana Jaxer Apache/Jaxer/Apache2-4Build/jaxer/aptana/diagnostics/jaxer-include/setup.js, referer: http://localhost:8081/aptana/diagnostics/index.html
+[Wed Dec 24 01:13:03.985596 2025] [authz_core:error] [pid 28488:tid 1232] [client ::1:58346] AH01630: client denied by server configuration: E:/Aptana Jaxer Apache/Jaxer/Apache2-4Build/jaxer/aptana/diagnostics/jaxer-include/setup.js, referer: http://localhost:8081/aptana/diagnostics/index.html
+[Wed Dec 24 01:13:12.467303 2025] [authz_core:error] [pid 28488:tid 1232] [client ::1:58360] AH01630: client denied by server configuration: E:/Aptana Jaxer Apache/Jaxer/Apache2-4Build/jaxer/aptana/diagnostics/jaxer-include/setup.js, referer: http://localhost:8081/aptana/diagnostics/index.html

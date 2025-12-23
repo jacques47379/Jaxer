@@ -1,0 +1,655 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Jaxer Chat Room</title>
+		<link type="text/css" rel="stylesheet" href="css/index.css">
+		<link type="text/css" rel="stylesheet" href="css/commonStyles.css">
+	</head>
+
+		<style>
+            /* Table utility style declarations */
+ 
+			.resizeable-box {
+			  resize: none;
+			  overflow: auto;
+			  width: 80%;
+			  height: 52px;
+			}
+            
+        </style>
+	
+		<!-- This script block will be available on both client and server since the 
+			runat attribute is set to 'both'. -->
+		<script type="text/javascript" runat="both"> 
+			function $(id) { return document.getElementById(id); }
+			function fromTemplate(idTarget, idSource) { $(idTarget).innerHTML = $(idSource).innerHTML.replace(/(\W)\$id\=/g, "$1id="); }
+			
+			function activateUI(isAuthenticated)
+			{
+				$("messages").className = isAuthenticated ? "enabled-messages" : "disabled-messages";
+				$("myMessage").disabled = !isAuthenticated;
+				$("send").disabled = !isAuthenticated;
+			}
+
+			function validateUsername(candidate)
+			{
+				return /^[\w\-]+$/.test(candidate) ? "" : "username must be alphanumeric or -";
+			}
+
+			function validatePassword(candidate)
+			{
+				return /^[\w\-\$]{6,}$/.test(candidate) ? "" : "password must be 6 or more alphanumeric or - or $ characters";
+			}
+		</script>
+		
+
+
+
+
+		<!-- These script blocks will execute only on the server because of the
+			runat="server" attributes. -->
+		<script type="text/javascript" runat="server">
+
+			function getAuthenticatedUser()
+			{
+				//Get the name from a jaxer session global variable
+				var username = Jaxer.session.username;
+				if (typeof username == "undefined") return null;
+				var rs = Jaxer.DB.execute("SELECT * FROM userschat WHERE username = ?", [username]);
+				if (rs.rows.length == 0)
+				{
+					return null;
+				}
+				//return the first row from the database query of matching usernames from a jaxer session global variable
+				return rs.rows[0];
+			}
+
+			//Set the global variable Jaxer.session.username to the username retrieved from the database query result.
+			function makeAuthenticated(user)
+			{
+				Jaxer.session.username = user.username;
+			}
+
+
+			//Application starts here
+			function initAuthentication()
+			{
+
+			//step 1: initiate the database commands
+			sql = "CREATE TABLE IF NOT EXISTS userschat " +
+				"( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+				", username VARCHAR(255) NOT NULL" +
+				", password VARCHAR(255) NOT NULL" +
+				", created DATETIME NOT NULL" +
+				", last_login DATETIME NOT NULL" +
+				", UNIQUE (username)" +
+				")";
+
+			Jaxer.DB.execute(sql);
+
+			sql = "CREATE TABLE IF NOT EXISTS chatmessages " +
+				"( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+				", room_id INTEGER NOT NULL" +
+				", sent DATETIME NOT NULL" +
+				", user_id INTEGER NOT NULL" +
+				", contents TEXT NOT NULL" +
+				")";
+
+			Jaxer.DB.execute(sql);
+
+				// Step 2 decide which html template to show. Is the user logged in or not?
+				try
+				{
+					//return the first row from the database query of matching usernames from a jaxer session global variable
+					var user = getAuthenticatedUser();
+					if (user)
+					{
+						// id the user exists in the database, then
+
+						//Fill the login compoent div with the HTML contents of login auenthicated. 
+						// login request asks the user to login.
+						// login authenticated shows that the user is currently logged in, and asks if they want to log out
+						// login create asks the user to setupp a new username, password, and to confor thr password
+						//The id becomes the logincomponent 
+						fromTemplate('loginComponent', 'loginAuthenticated');
+						//The username shown in the login authenticated template
+						$('authenticatedUsername').innerHTML = user.username;
+						// Set the jaxer clientData global variable to true
+						Jaxer.clientData.isAuthenticated = true;
+					}
+					else
+					{
+						//Fill the login compoent div with the HTML contents of login auenthicated. 
+						// login request asks the user to login.
+						// login authenticated shows that the user is currently logged in, and asks if they want to log out
+						// login create asks the user to setupp a new username, password, and to confor thr password
+						//The logic becomes the logincomponent 
+						fromTemplate('loginComponent', 'loginRequest');
+						// Set the jaxer clientData global variable to false
+						Jaxer.clientData.isAuthenticated = false;
+					}
+				}
+				catch (e)
+				{
+					//Add the authentication failure to the error log
+					Jaxer.Log.error("Error trying to get authenticated user: " + e);
+				}
+			}
+
+			function prepareDOM()
+			{
+				// The roomId is the Id of the first message in the room
+				// If we don't have one yet, we'll create it when we save the first message
+				//From the randomly generated html in the index page, retrieve the url bar component, extract the room id.
+				// Assign the room if global variable
+				var queryParts = Jaxer.request.parsedUrl.queryParts;
+				var roomId = queryParts.hasOwnProperty("room") ? queryParts["room"] : -1;
+				Jaxer.clientData.roomId = roomId;
+	
+				var user = getAuthenticatedUser();
+				var isAuthenticated = (user != null);
+				
+				activateUI(isAuthenticated);
+				
+				Jaxer.clientData.minMessageId = getLastMessageId(roomId); // Only messages after this will be displayed
+			}
+			
+			function saveMessage(roomId, contents, minMessageId)
+			{
+				var user = getAuthenticatedUser();
+				if (user == null) return "loggedout";
+				if (roomId < 0) roomId = Math.floor(-10000000 * Math.random()); // Set it to a number that will be quite unique
+				Jaxer.DB.execute("INSERT INTO chatmessages (room_id, sent, user_id, contents) VALUES (?, ?, ?, ?)",
+					[roomId, new Date(), user.id, contents]);
+				var rs;
+				if (roomId < 0)
+				{
+					var oldRoomId = roomId;
+					roomId = Jaxer.DB.execute("SELECT id FROM chatmessages WHERE room_id = ?", [oldRoomId]).singleResult;
+					Jaxer.DB.execute("UPDATE chatmessages SET room_id = ? WHERE room_id = ?", [roomId, oldRoomId]);
+				}
+				return getMessagesSince(minMessageId, roomId);
+			}
+			saveMessage.proxy = true;
+			
+			function getMessagesSince(id, roomId)
+			{
+				if (roomId < 0) return [];
+				var user = getAuthenticatedUser();
+				if (user == null) return "loggedout";
+				var rs = Jaxer.DB.execute("SELECT m.id, m.room_id, m.sent, u.username, m.contents FROM chatmessages m, userschat u " +
+					"WHERE m.room_id = ? AND m.id > ? AND m.user_id = u.id ORDER BY m.sent",
+					[roomId, id]);
+				var result = rs.rows;
+				return result;
+			}
+			getMessagesSince.proxy = true;
+			
+			function getLastMessageId(roomId)
+			{
+				if (roomId < 0) return -1;
+				var user = getAuthenticatedUser();
+				if (user == null) return -1;
+				var rs = Jaxer.DB.execute("SELECT max(id) FROM chatmessages WHERE room_id = ?", [roomId]);
+				return (rs.singleResult == null) ? -1 : rs.singleResult;
+			}
+			
+			function getPollingInterval(poll) 
+			{
+				// read chat.ini and return the polling interval found there
+				
+				var chatInitFile = new Jaxer.File(Jaxer.Dir.resolve("jaxer-include/chat.ini"));
+				if (chatInitFile.exists)
+				{
+					chatInitFile.open("r", 644);
+					var fileContents = chatInitFile.read();
+					chatInitFile.close();
+					var lines = fileContents.split(/\n/);
+					
+					for (line in lines)
+					{
+						tuple = lines[line].split(/\s=\s/);
+						if (tuple[0] == "pollingInterval")
+						{
+							Jaxer.Log.warn("setting polling interval from chat.ini " + tuple[1]);
+							return tuple[1];
+						}
+					}
+				}
+				else
+				{
+					return poll;
+				}
+				
+			}
+			getPollingInterval.proxy = true;
+
+
+			function saveCredentials(username, password)
+			{
+				var error = "";
+				var errors = [];
+				error = validateUsername(username);
+				if (error != "") errors.push(error);
+				error = validatePassword(password);
+				if (error != "") errors.push(error);
+				if (errors.length > 0) return errors.join("; ");
+				
+				var rs;
+				rs = Jaxer.DB.execute("SELECT * FROM userschat WHERE username = ?", [username]);
+				if (rs.rows.length != 0)
+				{
+					var user = rs.rows[0];
+					var previousPassword = user.password;
+					if (previousPassword == password) // validate them
+					{
+						makeAuthenticated(user);
+						return ""; 
+					}
+					return "username already in use";
+				}
+				
+				var values = "('" + [username, password].join("', '") + "', NOW(), NOW())";
+				try
+				{
+					var now = new Date();
+					Jaxer.DB.execute("INSERT INTO userschat (username, password, created, last_login) VALUES (?, ?, ?, ?)",
+						[username, password, now, now]);
+					rs = Jaxer.DB.execute("SELECT * FROM userschat WHERE username = ?", [username]);
+					if (rs.rows.length != 0)
+					{
+						var user = rs.rows[0];
+						makeAuthenticated(user);
+						return "";
+					}
+					else
+					{
+						Jaxer.Log.warn("Could not find the user '" + username + "' that was just created!");
+						return "Could not find the account that should have just been created";
+					}
+				}
+				catch (e)
+				{
+					Jaxer.Log.warn("User error when trying to save credentials: " + e);
+					return "Could not create username/password";
+				}
+			}
+			saveCredentials.proxy = true;
+				
+			function checkCredentials(username, password)
+			{
+				var rs = Jaxer.DB.execute("SELECT * FROM userschat WHERE username = ? AND password = ?",
+					[username, password]);
+				if (rs.rows.length == 0)
+				{
+					return "";
+				}
+				var user = rs.rows[0];
+				makeAuthenticated(user);
+				return user.username;
+			}
+			checkCredentials.proxy = true;
+
+			function removeCredentials()
+			{
+				delete Jaxer.session.username;
+			}
+			removeCredentials.proxy = true;
+
+		</script>
+		
+
+
+
+
+
+
+
+
+		<!-- This script block is a standard script block and runs on the browser only -->
+		<script type="text/javascript">
+			// Get the roomid from the url string
+			var roomId = Jaxer.clientData.roomId;
+			var minMessageId = Jaxer.clientData.minMessageId;
+			//Set the id to null for the repeating operation id
+			var pollingIntervalId = null;
+			//Set the rate that the repeating action will repeat
+			var pollingInterval = 2000;
+			getPollingInterval.async(getPoleRate, 2000); // (default in ms)
+			
+			window.onload = function()
+			{
+				setRoomId(roomId);
+				$("send").onclick = send; // Click 'Send' to send, customer the send button to initate the send function. This is essentially an action listener
+				$("myMessage").onkeypress = function(evt) { if ((evt && evt.which == 13) || (window.event && window.event.keyCode == 13)) { send(); return false; } }  // Hit 'enter' to send
+				onAuthenticateChange(Jaxer.clientData.isAuthenticated);
+				getMessagesSince.async(messageLoader,0,roomId);
+				$("messages").scrollTop = $("messages").scrollHeight;
+			}
+
+			function messageLoader(messages)
+			{
+				appendMessages(messages);
+			}
+
+			function getPoleRate(poleRate)
+			{
+				pollingInterval = poleRate;
+			}
+			
+			function setRoomId(newRoomId)
+			{
+				roomId = newRoomId;
+				$('roomTitle').innerHTML = (roomId >= 0) ? "Chat Room #" + roomId : "New Chat Room";
+				$('roomTitle').innerHTML += "&nbsp;&nbsp;(<a href=\"javascript:window.location='index.html?rnd='+Math.random()\">Exit Room</a>)";
+			}
+
+			function changeAuthentication(isAuthenticated)
+			{
+				if (typeof window.onAuthenticateChange === "function") onAuthenticateChange(isAuthenticated);
+			}
+
+			function validate(validationFunction, candidate)
+			{
+				if (candidate == "") return; // Not done filling this out, perhaps
+				var error = validationFunction(candidate);
+				if (error != "")
+				{
+					alert(error);
+				}
+			}
+
+			//When the user clicks the login button or the enter key in the password box:
+			function login()
+			{
+				//Get the username and password from he input fields
+				var username = $('username').value;
+				var password = $('password').value;
+
+				checkCredentials.async(loginCheck, username, password);
+			}
+
+			function loginCheck(usernameRetrieved)
+			{
+				if (usernameRetrieved != "")
+				{
+					//Fill the login compoent div with the HTML contents of login auenthicated. 
+						// login request asks the user to login.
+						// login auenthicates shows that the user is currently logged in, and asks if they want to log out
+						// login create asks the user to setupp a new username, password, and to confor thr password
+						//The id becomes the logincomponent 
+					fromTemplate('loginComponent', 'loginAuthenticated');
+					//Set the authenticatedUsername field within the loginAuthenticated html template to show the username entered within the username box.
+					setTimeout("$('authenticatedUsername').innerHTML = '" + usernameRetrieved + "'", 0);
+					//refreshChatroomView, show rooms when logged in. Hide rooms when logged out
+					changeAuthentication(true);
+				}
+				else
+				{
+					$('loginMessage').innerHTML = "Sorry, try again";
+				}
+			}
+
+			function logout()
+			{
+				removeCredentials();
+				fromTemplate('loginComponent', 'loginRequest');
+				setTimeout("$('loginMessage').innerHTML = 'successfully logged out'", 0);
+				changeAuthentication(false);
+			}
+
+			function showCreateAccount()
+			{
+				fromTemplate('loginComponent', 'loginCreate');
+			}
+
+			function createAccount()
+			{
+				var username = $('newUsername').value;
+				var password = $('newPassword').value;
+				var confirmPassword = $('confirmPassword').value;
+				if (password != confirmPassword)
+				{
+					alert("Please enter the same password twice to proceed");
+					return;
+				}
+				var error = saveCredentials(username, password);
+				if (error == "")
+				{
+					fromTemplate('loginComponent', 'loginAuthenticated');
+					setTimeout("$('authenticatedUsername').innerHTML = '" + username + "'", 0);
+					changeAuthentication(true);
+				}
+				else
+				{
+					setTimeout("$('createAccountMessage').innerHTML = '" + error + "'", 0);
+				}
+			}
+
+			function cancelCreateAccount()
+			{
+				fromTemplate('loginComponent', 'loginRequest');
+			}
+
+			function handleReturn(evt, handler)
+			{
+				if (!evt) evt = window.event;
+				if ((evt.which && evt.which == 13) || 
+					(evt.keyCode && evt.keyCode == 13))
+				{
+					handler();
+					return false; 
+				}
+			}
+
+			function onAuthenticateChange(isAuthenticated)
+			{
+				activateUI(isAuthenticated);
+				Jaxer.clientData.isAuthenticated = isAuthenticated;
+				if (isAuthenticated)
+				{
+					if (minMessageId < 0 && roomId >= 0) // It's never been set before
+					{
+						getLastMessageId.async(setMinMessageID, roomId);
+					}
+					//using the pollingIntervalId, initiate a repeating action. Perform the pollMessages() function every 2 seconds according to the pollingInterval
+					pollingIntervalId = setInterval("pollMessages()", pollingInterval);
+					setInputFocus();
+				}
+				else if (pollingIntervalId != null)
+				{
+					//Generic Javascript command
+					clearInterval(pollingIntervalId);
+				}
+			}
+
+			function setMinMessageID(result)
+			{
+				minMessageId = result;
+			}
+
+			function send()
+			{
+				var contents = $("myMessage").value;
+				if ((contents.length) == 0) // ignore empty lines send to chat.
+				{
+					return;
+				}
+				saveMessage.async(loadNewMessages, roomId, contents, minMessageId);
+			}
+
+			function loadNewMessages(messages)
+			{
+				if (messages == "loggedout")
+				{
+					logout();
+					return;
+				}
+				appendMessages(messages);
+				if (messages.length > 0) // message was accepted
+				{
+					$('myMessage').value = "";
+					setInputFocus();
+				}
+			}
+			
+			function setInputFocus()
+			{
+				setTimeout("$('myMessage').focus()", 0);
+			}
+			
+			function pollMessages()
+			{
+				if (roomId < 0) return;
+				getMessagesSince.async(pollRecentMessages, minMessageId, roomId);
+			}
+
+			function pollRecentMessages(messages)
+			{
+				if (messages == "loggedout")
+				{
+					logout();
+					return;
+				}
+				appendMessages(messages);
+			}
+			
+			function numericPad(num,width)
+			{
+				return num > Math.pow(10,width) ? num.toString() : (Math.pow(10,width) + num).toString().substring(1);
+			}
+			
+			function appendMessages(messages)
+			{
+				if (messages.length === 0) return;
+				var htmlStrings = [];
+				for (var i=0; i<messages.length; i++)
+				{
+					var message = messages[i];
+					message.sent = 
+						numericPad(message.sent.getHours(),2) + ":" + 
+						numericPad(message.sent.getMinutes(),2) + ":" + 
+						numericPad(message.sent.getSeconds(),2); // Only the time portion
+						
+					var html = $("messageTemplate").innerHTML.replace(/\$(\w+)\$/g, 
+						function(match, keyword) { return message[keyword]; }
+						);
+					htmlStrings.push(html);
+					if (roomId < 0)
+					{
+						setRoomId(message.room_id);
+					}
+					minMessageId = message.id; // This will end up being the largest already-fetched message
+				}
+				$("messages").innerHTML = $("messages").innerHTML + "\n" + htmlStrings.join("\n") + "\n";;
+				$("messages").scrollTop = $("messages").scrollHeight;
+			}
+		</script>
+		
+
+
+
+
+
+
+
+
+
+
+	<!-- We set a new attribute on the body tag: 'onserverload'. It works just like 'onload', but
+			on the server-side. When Jaxer is done loading the page, the function(s) specified will
+			be executed. You can have both onserverload and onload, for server and client, 
+			respectively. -->
+	<body onserverload="initAuthentication(); prepareDOM();">
+		<div id='sampleHeader'>
+            <div class='sampleTitle'>
+               <img src='images/user_comment.png'/> Simple Chat Demo
+            </div>
+        </div>
+
+
+		<div id="messageTemplate" style="display:none">
+			<div>
+				<span class="message-timestamp">($sent$)</span>
+				<span class="message-sender">$username$</span>&nbsp;
+				<span class="message-contents">$contents$</span>
+			</div>
+		</div>
+        <div id='applicationContent'>
+
+        <div id="chatTable">
+            <div class='loginPanel'>
+				
+				<!-- BEGINNING OF TEMPLATES -->
+				<div id="templates" style="display:none ml-5 mr-5">
+					<div id="loginAuthenticated" style="display:none">
+						Welcome, <span $id="authenticatedUsername"></span>!
+						<a href="javascript:logout(); void(0)">logout...</a>
+					</div>
+					<div id="loginRequest" style="display:none">
+						<form>
+							<table>
+								<tr>
+									<td>Username:</td>
+									<td><input type="text" size="40" $id="username" name="username" onblur="validate(validateUsername, this.value)" autocomplete="username"></td>
+								</tr>
+								<tr>
+									<td>Password:</td>
+									<td><input type="password" size="40" $id="password" name="password" onblur="validate(validatePassword, this.value)"
+											onkeypress="handleReturn(event, login)" autocomplete="current-password"></td>
+								</tr>
+								<tr>
+									<td colspan=2>
+										<a href="javascript:showCreateAccount(); void(0)">Create new account...</a>
+										<input type="button" value="Login" onclick="login()">
+										<span $id="loginMessage"></span>
+									</td>
+								</tr>
+							</table>
+						</form>
+					</div>
+					<div id="loginCreate" style="display:none">
+						<form>
+							<table>
+								<tr>
+									<td>New username:</td>
+									<td><input type="text" size="40" $id="newUsername" name="newUsername" onblur="validate(validateUsername, this.value)" autocomplete="username"></td>
+								</tr>
+								<tr>
+									<td>New password:</td>
+									<td><input type="password" size="40" $id="newPassword" name="newPassword" onblur="validate(validatePassword, this.value)" autocomplete="current-password"></td>
+								</tr>
+								<tr>
+									<td>Confirm password:</td>
+									<td><input type="password" size="40" $id="confirmPassword" name="confirmPassword" 
+											onkeypress="handleReturn(event, createAccount)" autocomplete="current-password"></td>
+								</tr>
+								<tr>
+									<td colspan=2>
+										<a href="javascript:cancelCreateAccount(); void(0)">Cancel</a>
+										<input type="button" value="Create" onclick="createAccount()">
+										<span $id="createAccountMessage"></span>
+									</td>
+								</tr>
+							</table>
+						</form>
+					</div>
+				</div>
+				<!-- END OF TEMPLATES -->
+
+				<div id="loginComponent"></div>
+
+            </div>
+
+			<div id="inputPanel">
+            	<div id="messages">
+				</div>
+            	<div id="roomTitle" class="room-title">
+				</div>
+                <input id="send" type="button" style="height:50px;width:18%;float:right;" value="Send" title="To send, click here or just hit Enter"/>
+				<textarea class="form-control resizeable-box smallish-border-margin" id="myMessage" cols="5" name="myMessage"></textarea>
+            </div>
+		</div>	
+	</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+		<!-- Meta data -->
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Bootstrap</title>
+
+		<style>
+            /* Table utility style declarations */
+                .collapseabletable {
+                   border-collapse: collapse;
+                   border-spacing: 0;
+                   border: 1px solid;
+                 }
+                   
+                .collapseabletablerow {
+                    border: 1px solid;
+                   }
+    
+                .double-wall-padding {
+                  padding-left:16px;
+                  padding-right:16px;
+                }	
+
+                .navbar-expand-lg {
+                    background-color:rgb(243, 200, 7) !important;
+                    color: rgb(255, 255, 255);
+                }    
+
+                .navbar-brand {
+                    color: rgb(255, 255, 255);
+                    font-style: italic;
+                }    
+
+                a.navbar-brand:hover {
+                  color: #d6f8dd;
+                  font-style: italic;
+                }
+
+                a.nav-link {
+                    color: rgb(255, 255, 255);
+                }    
+
+                a.nav-link:hover {
+                  color: #d6f8dd;
+                }
+
+                button.btn.btn-outline-success {
+                    color: rgb(243, 200, 7);
+                    background-color: rgb(255, 255, 255);
+                    border-color: rgb(255, 255, 255);
+                }
+
+                div.modal-header {
+                    background-color:rgb(243, 200, 7) !important;
+                    color: rgb(255, 255, 255);
+                }
+
+                button.btn.btn-secondary.ml-auto {
+                    color: rgb(255, 255, 255);
+                    background-color:rgb(243, 200, 7) !important;
+                    border-color: rgb(243, 200, 7);
+                }
+
+                button.btn.btn-primary {
+                    color: rgb(255, 255, 255);
+                    background-color:rgb(243, 200, 7) !important;
+                    border-color: rgb(243, 200, 7);
+                }
+
+                input.btn.btn-primary {
+                    color: rgb(255, 255, 255);
+                    background-color:rgb(243, 200, 7) !important;
+                    border-color: rgb(243, 200, 7);
+                }
+
+                label.col-sm-2.control-label {
+                    max-width: 100%;
+                }
+
+                .resizeable-box {
+                  resize: vertical;
+                  overflow: auto;
+                  width: 100%;
+                  height: 402px;
+                }
+
+                .smallish-border-margin {
+                  margin-bottom:8px;
+                }	
+
+                .redValidationBox {
+                    color: rgb(255, 0, 0);
+                }
+
+                .redBackground {
+                    background-color: rgb(255, 0, 0);
+                }
+
+                .blueBackground {
+                    background-color: #007bff;
+                }
+
+                .navbar {
+                    background-color: rgb(255, 0, 0) !important;
+                }  
+                
+                .bg-yellow {
+                  background-color:#FFF000;
+                }
+                
+                
+                .bg-orange {
+                  background-color:#FFD700;
+                }
+                
+                .bg-blue {
+                  background-color:#95EDEB;
+                }
+                
+                .bg-dark-grey {
+                  background-color:#e1e1e1;
+                }	
+                
+                .bg-very-dark-grey {
+                  background-color:#c1c1c1;
+                }
+                
+                .bg-lt-grey {
+                  background-color:#ebebeb;
+                }
+
+                .medium-padding {
+                  padding:6px;
+                  padding-left:20px;
+                }	
+
+                .small-margin {
+                  margin:1px;
+                }	
+                
+                .single-line-border-margin {
+                  margin-bottom:4px;
+                }	
+                
+                .smallish-border-margin {
+                  margin-bottom:8px;
+                }	
+
+                .medium-border-margin {
+                  margin-bottom:16px;
+                }	
+
+                .moderately-big-border-margin {
+                  margin-bottom:32px;
+                }
+                
+                .moderately-big-border-margin-above {
+                  margin-top:32px;
+                }
+
+                .big-border-margin {
+                  margin-bottom:64px;
+                }			
+
+                .right-wall-padding {
+                  padding-right:20px;
+                }	
+                
+                .full-wall-padding {
+                  padding:20px;
+                }
+
+                .double-wall-padding {
+                  padding-left:16px;
+                  padding-right:16px;
+                }	
+
+                .hot-water-lead {
+                  width: 100%;
+                  height: 2000px;
+                  background-image: url('img/Hot Water Lead - copy.png');
+                  background-size: 100% 100%;
+                }	
+
+                .red-box {
+                  width: 100%;
+                  height: 30px;
+                  background-image: url('img/Red Box.png');
+                  background-size: 100% 100%;
+                }
+                
+                textarea:focus { 
+                  outline: none !important;
+                  border-color: #719ECE;
+                  box-shadow: 0 0 10px #719ECE;
+                  background-color: #000000;
+                  }
+
+                .horizontal-box { 
+                  justify-content: center !important;
+                  }
+                  
+        </style>
+
+  </head>
+  <body>
+		<header class="redBackground header-bar">
+			<nav class="navbar navbar-expand-lg redBackground me-3">
+    			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      			<span class="navbar-toggler-icon"></span>
+    			</button>
+    			<div class="container d-flex flex-column flex-md-row align-items-center p-3 redBackground" id="navbarSupportedContent">
+          		<h4 class="nav-item"><a href="/" class="text-white">OurApp</a></h4>
+              <form class="navbar-nav">
+          					<a href="#" class="text-white mr-2 header-search-icon" title="Search" data-toggle="tooltip" data-placement="bottom"><i class="fas fa-search"></i></a>
+          					 <span class="text-white mr-2 header-chat-icon" title="Chat" data-toggle="tooltip" data-placement="bottom"><i class="fas fa-comment"></i></span>
+          					<a href="#" class="mr-2"><img title="My Profile" data-toggle="tooltip" data-placement="bottom" style="width: 32px; height: 32px; border-radius: 16px" src="https://gravatar.com/avatar/f64fc44c03a8a7eb1d52502950879659?s=128" /></a>
+          					<a class="btn btn-sm btn-success mr-2" href="#">Create Post</a>
+          					<form action="/login" method="POST" class="mb-0 pt-2 pt-md-0">
+                      <div class="row align-items-right">
+                        <div class="col-md mr-0 pr-md-0 mb-3 mb-md-0">
+                          <input name="loginusername" class="form-control form-control-sm input-dark" type="text" placeholder="Username" autocomplete="off" />
+                        </div>
+                        <div class="col-md mr-0 pr-md-0 mb-3 mb-md-0">
+                          <input name="loginpassword" class="form-control form-control-sm input-dark" type="password" placeholder="Password" />
+                        </div>
+                        <div class="col-md mr-0 pr-md-0 mb-3 mb-md-0">
+                          <button class="btn btn-primary btn-sm mr-2">Sign In</button>
+                          <button class="btn btn-sm btn-secondary">Sign Out</button>
+                        </div>
+                      </div>
+                    </form>
+        				</li>
+          		</form>                      
+    			</div>
+			</nav>
+		</header>
+    <!-- header ends here -->
+
+    <div class="container py-md-5">
+      <div class="row align-items-center horizontal-box">
+        <div class="col-lg-5 pl-lg-5 pb-3">
+          <form action="/register" method="POST" id="registration-form">
+            <div class="form-group">
+              <label for="post-title" class="text-muted mb-1"><small>Title</small></label>
+              <input value="" name="post-title" id="post-title" class="form-control" type="text" autocomplete="off" />
+            </div>
+
+            <div class="form-group">
+              <label for="post-body-content" class="text-muted mb-1"><small>Body Content</small></label>
+              <textarea class="form-control resizeable-box bg-blue smallish-border-margin" id="post-body-content" cols="5" name="post-body-content"></textarea> 
+            </div>
+
+            <button type="submit" class="py-3 mt-4 btn btn-lg btn-success btn-block blueBackground">Save New Post</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+        <!-- footer begins -->
+    <footer class="border-top text-center small text-muted py-3">
+      <p class="m-0">Copyright &copy; 2022 <span class="text-muted">OurApp</span>. All rights reserved.</p>
+    </footer>
+
+		<!-- Jquery library needs to be placed above any reference to Boostrap js -->
+		<script defer src="js/jquery-3.3.1.min.js"></script>
+		<link defer rel="stylesheet" href="css/bootstrap.min.css">
+		<script defer src="js/bootstrap.min.js"></script>
+		<link defer rel="stylesheet" href="css/custom1.css">
+		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.5.0/js/all.js" integrity="sha384-GqVMZRt5Gn7tB9D9q7ONtcp4gtHIUEW/yG7h98J7IpE3kpi+srfFyyB/04OV6pG0" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script>
+      $('[data-toggle="tooltip"]').tooltip()
+    </script>
+
+  </body>
+</html>

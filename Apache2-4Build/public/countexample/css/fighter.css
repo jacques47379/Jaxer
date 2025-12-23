@@ -1,0 +1,50 @@
+
+body {
+  background-color: #050253;
+}
+
+.main {
+  padding: 50px 100px;
+}
+
+.main > h1 {
+  background: linear-gradient(to right, #c02425, #f0cb35);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+img {
+  height: 150px;
+  width: 150px;
+  object-fit: cover;
+}
+
+
+.grid-3-columns {
+  display: grid;
+  grid-template-columns: 20% 30% 50%;
+  grid-column-gap: 8px;
+}
+
+.margin-top {
+  margin-top: 30px !important;
+}
+
+.margin-bottom {
+  margin-bottom: 30px !important;
+}
+
+.padding-top {
+  padding-top: 20px;
+}
+
+.padding-bottom {
+  padding-bottom: 20px;
+}
+
+form {
+  width: 40% !important;
+}
+
+

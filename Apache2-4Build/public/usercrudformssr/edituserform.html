@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Meta data -->
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Codes With Pankaj</title>
+        <script src="js/header.js"></script>
+        <script src="js/userform.js"></script>
+
+        <script src="js/bootstrap.min.js"></script>
+		<link rel='stylesheet' type='text/css' href='css/bootstrap.min.css'>
+        
+    </head>
+    <script type="text/javascript">
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function performActionsWithDelay() {
+  console.log("Starting action 1...");
+  await delay(1); // Wait for 1 millisecond
+  editUserInDB.async(prefillData, "action");
+}
+
+window.onload = function() {
+
+		document.getElementById("headerTag").innerHTML = loadHeaderFromFile; // Load header from fie	
+        document.getElementById("userFormTag").innerHTML = loadUserFormFromFile; // Load user form from fie	
+
+performActionsWithDelay();
+    }
+			function prefillData(msg)
+			{
+				$('user-Form-Name').value = msg.userFormName;
+                $('user-Form-Password').value = msg.userFormPassword;
+                $('user-Form-Email').value = msg.userFormEmail;
+                $('user-Form-Gender').value = msg.userFormGender;
+                $('user-Form-Country').value = msg.userFormCountry;
+			}
+
+    function editUser()
+			{
+                editUserButton.value = "editing user...";
+				editUserButton.disabled = true;
+
+				var userFormName = $('user-Form-Name').value;
+                var userFormPassword = $('user-Form-Password').value;
+                var userFormEmail = $('user-Form-Email').value;
+                var userFormGender = $('user-Form-Gender').value;
+                var userFormCountry = $('user-Form-Country').value;
+
+                // If any of the values are blank, let the user know.
+                // This is not fancy, as we're showing off email sending, not forms validation :-)
+                if(userFormName == "" || userFormPassword == "" || userFormEmail == "" || userFormGender == "" || userFormCountry == "")
+                {
+                    alert("One of the fields is blank, please enter values for all fields.");
+                    editUserButton.value = "edit User";
+                    editUserButton.disabled = false;
+                    return;
+                }
+
+				// Now that we're ready to send, let's use an Asynchronous version of the call so that our
+				// browser doesn't hang (i.e. block) waiting for the email server to return.
+				// You do this by simply calling the function name you wrote, but adding 'Async' to the end
+				// of the name, and using the callback function as the first parameter. In this case,
+				// when the call is done, 'emailSent()' is called.
+				saveUserInDB.async(databaseFinished, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry);
+			}
+			
+			/**
+			 * This client-side function is called once the server-side sendSMTPEmail
+			 * function returns from sending out the emai
+			 * 
+			 * @param {String} msg The message returned from the sendSMTPEmail() function
+			 */
+			function databaseFinished(msg)
+			{
+				// Set the button state and label back to normal
+                editUserButton.value = "edit User";
+                editUserButton.disabled = false;
+
+                
+                switch (msg) {
+		            case "Successfully edited to database":
+                        var pom = document.createElement('a');
+                        pom.href = "index.html";
+                        document.body.appendChild(pom);
+                        pom.click();
+                        pom.parentNode.removeChild(pom);
+			            break;
+		            default:
+                        alert(msg);
+		        }
+                
+			}
+			
+			/*
+			 * We override the ontimeoutAsync function so that we can know if we timed out
+			 * in trying to talk to the server.
+			 */
+			Jaxer.Callback.ontimeoutAsync = function(xhr, timeout, extra)
+			{
+				databaseFinished("The request timed out after " + timeout/1000 + " seconds, aborting.");
+			}
+
+    </script>
+
+            <!-- This script block will execute only on the server with a prxy to the user because of the
+			runat="server-proxy" attributes. -->
+            <script type="text/javascript" runat="server-proxy">
+                /*
+                 * Save a user directly into the database normal version
+                 */
+                 function saveUserInDB(userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry)
+                {
+				// We now put a try/catch around the send so we can detect any errors
+				// that might occur (i.e. cannot connect to server)
+				try {
+                    user = editUserInDB("action");
+
+					// Send the MailMessage object we created to the 'server' specified
+					// over SMTP. Note: No authentication is performed.
+					Jaxer.DB.execute("UPDATE users SET userFormName = ?, userFormPassword = ?, userFormEmail = ?, userFormGender = ?, userFormCountry = ? WHERE id = ?",
+                    [userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, user.id]);
+                    
+				} 
+				catch (e) {
+					// If there is an error, the exception will contain a description of it.
+					return e.toString();
+				}
+
+                 Jaxer.DB.execute("DELETE FROM editUsers");
+
+				// If nothing went wrong, then we are successful.
+				return "Successfully edited to database";
+                }
+
+                function editUserInDB(action)
+                {
+                /*
+                 * The SQL to create the database table we'll use to store the user
+                 */
+                 var editUsersSql = "CREATE TABLE IF NOT EXISTS editUsers " +
+                    "( id INTEGER NOT NULL" +
+                    ", userFormName VARCHAR(255)" +
+                    ", userFormPassword VARCHAR(255)" +
+                    ", userFormEmail VARCHAR(255)" +
+                    ", userFormGender VARCHAR(255)" +
+                    ", userFormCountry VARCHAR(255)" +
+                    ", created DATETIME NOT NULL" +
+                    ")";
+
+                // Execute the sql statement against the default Jaxer database
+                Jaxer.DB.execute(editUsersSql);
+
+				var resultSet = Jaxer.DB.execute("SELECT * FROM editUsers ORDER BY created DESC");
+					var task = resultSet.rows[0];
+
+				return task;
+				}
+
+
+
+
+            </script>
+
+
+		<!-- This script block will be available on both client and server since the 
+			runat attribute is set to 'both'. -->
+    <script type="text/javascript" runat="both">
+                /*
+                 * Easy access to a named element in the DOM
+                 */
+                function $(id) 
+                { 
+                    return document.getElementById(id); 
+                }
+/*
+    function editUserToUI(userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, id, task)
+			{
+				$('user-Form-Name').value = userFormName;
+                $('user-Form-Password').value = userFormPassword;
+                $('user-Form-Email').value = userFormEmail;
+                $('user-Form-Gender').value = userFormGender;
+                $('user-Form-Country').value = userFormCountry;
+			}
+*/
+    </script>
+
+	<body>	
+        <nav id="headerTag">
+
+        </nav>	
+        <div class="container mt-5">
+              <div class="mb-3" id="userFormTag">
+
+              </div>
+              <input type="button" class="btn btn-primary" id="editUserButton" value="Edit User" onclick="editUser()">
+
+          </div>
+    </body>
+</html>
+

@@ -1,0 +1,651 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Jaxer Chat - Index</title>
+		<link type="text/css" rel="stylesheet" href="css/index.css">
+		<link type="text/css" rel="stylesheet" href="css/commonStyles.css">
+		
+		<!-- This script block will be available on both client and server since the 
+			runat attribute is set to 'both'. -->
+		<script type="text/javascript" runat="both">
+			
+			function $(id) { return document.getElementById(id); }
+
+			//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login auenthicates shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent 
+			function fromTemplate(idTarget, idSource) { $(idTarget).innerHTML = $(idSource).innerHTML.replace(/(\W)\$id\=/g, "$1id="); }
+			
+			//Step 7
+			//Retrieve rooms from database
+			function showRooms(rooms)
+			{
+				//If no rooms in database:
+				if (rooms == null)
+				{
+					//html room container, fill with text
+					$("rooms").innerHTML = "(Not logged in)";
+				}
+				else
+				{
+					//If rooms in database:
+					var htmlStrings = [];
+					for (var i = 0; i < rooms.length; i++) {
+						//Perform a loop through the room database results
+						var room = rooms[i];
+						var html = $("roomTemplate").innerHTML.replace(/\$(\w+)\$/g, function(match, keyword){
+							return room[keyword];
+						});
+						//Add html text to htmlstrings array
+						htmlStrings.push(html);
+					}
+					//Fill the room container with the list of room
+					$("rooms").innerHTML = "\n" + htmlStrings.join("\n") + "\n";
+				}
+			}
+			
+			
+		</script>
+		
+		<!-- These script blocks will execute only on the server because of the
+			runat="server" attributes. -->
+		<script type="text/javascript" runat="server">
+
+function getAuthenticatedUser()
+{
+	//Get the name from a jaxer session global variable
+	var username = Jaxer.session.username;
+	if (typeof username == "undefined") return null;
+	var rs = Jaxer.DB.execute("SELECT * FROM userschat WHERE username = ?", [username]);
+	if (rs.rows.length == 0)
+	{
+		return null;
+	}
+	//return the first row from the database query of matching usernames from a jaxer session global variable
+	return rs.rows[0];
+}
+
+//Set the global variable Jaxer.session.username to the username retrieved from the database query result.
+function makeAuthenticated(user)
+{
+	Jaxer.session.username = user.username;
+}
+
+//Application starts here
+function initAuthentication()
+{
+
+//step 1: initiate the database commands
+sql = "CREATE TABLE IF NOT EXISTS userschat " +
+	"( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+	", username VARCHAR(255) NOT NULL" +
+	", password VARCHAR(255) NOT NULL" +
+	", created DATETIME NOT NULL" +
+	", last_login DATETIME NOT NULL" +
+	", UNIQUE (username)" +
+	")";
+
+Jaxer.DB.execute(sql);
+
+sql = "CREATE TABLE IF NOT EXISTS chatmessages " +
+	"( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+	", room_id INTEGER NOT NULL" +
+	", sent DATETIME NOT NULL" +
+	", user_id INTEGER NOT NULL" +
+	", contents TEXT NOT NULL" +
+	")";
+
+Jaxer.DB.execute(sql);
+
+// Step 2 decide which html template to show. Is the user logged in or not?
+	try
+	{
+		//return the first row from the database query of matching usernames from a jaxer session global variable
+		var user = getAuthenticatedUser();
+		if (user)
+		{
+			// id the user exists in the database, then
+
+			//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login authenticated shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent 
+			fromTemplate('loginComponent', 'loginAuthenticated');
+			//The username shown in the login authenticated template
+			$('authenticatedUsername').innerHTML = user.username;
+			// Set the jaxer clientData global variable to true
+			Jaxer.clientData.isAuthenticated = true;
+		}
+		else
+		{
+			//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login authenticated shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The logic becomes the logincomponent 
+			fromTemplate('loginComponent', 'loginRequest');
+			// Set the jaxer clientData global variable to false
+			Jaxer.clientData.isAuthenticated = false;
+		}
+	}
+	catch (e)
+	{
+		//Add the authentication failure to the error log
+		Jaxer.Log.error("Error trying to get authenticated user: " + e);
+	}
+}
+
+
+			// Step 4
+			function getRooms(filler)
+			{
+				//return the first row from the database query of matching usernames from a jaxer session global variable
+				var user = getAuthenticatedUser();
+				if (user == null) return null;
+				//query chat messages, group by room_id. find the first date/time a message was sent. find the last date/time a message was sent
+				var rs = Jaxer.DB.execute("SELECT MIN(sent) AS started, MAX(sent) AS last, room_id FROM chatmessages GROUP BY room_id");
+				// Fix up dates because SQLite does not (reliably?) return the declared column type on aggregates
+				//create a loop of database rows
+				for (var i=0, len = rs.rows.length; i<len; i++)
+				{
+					//for each row from the database query, format the started and ended date as a shortdate
+					var row = rs.rows[i];
+					if (typeof row.started == "number") row.started = formatShortDate(new Date(row.started));
+					if (typeof row.last == "number") row.last = formatShortDate(new Date(row.last));
+				}
+				return rs.rows;
+				//output the formatted dates and times of room ids
+			}
+			getRooms.proxy = true;
+			
+			// Step 6
+			function numericPad(num,width)
+			{
+				//is number greater than 100. If so, output the streing of the number. If not, 100 + number, ignore the 1 at the start of 100 and output the string of the first 2 characters of the number.
+				return num > Math.pow(10,width) ? num.toString() : (Math.pow(10,width) + num).toString().substring(1);
+			}
+
+			// Step 5
+			function formatShortDate(dt)
+			{	
+				var dd = numericPad(dt.getDate(),2);
+				var mm = numericPad(dt.getMonth()+1,2);
+				var yr = numericPad(dt.getFullYear(),2);
+				
+				var hr = numericPad(dt.getHours(),2);
+				var mn = numericPad(dt.getMinutes(),2);
+				var ss = numericPad(dt.getSeconds(),2);
+				
+				return [dd,mm,yr].join("/") + " " + [hr,mn,ss].join(":");
+			}
+			
+			//Application starts here
+			// Step 3 
+			function prepareDOM()
+			{
+				var rooms = getRooms("hello");
+				showRooms(rooms);
+			}
+
+
+
+
+
+
+//Upon exiting the input field (client side), or when performing account creation validation (server side), validate the username for alphanumeric or -
+function validateUsername(candidate)
+{
+	return /^[\w\-]+$/.test(candidate) ? "" : "username must be alphanumeric or -";
+}
+validateUsername.runat = "both";
+
+//Upon exiting the input field (client side), or when performing account creation validation (server side), validate the password must be 6 or more alphanumeric or - or $ characters
+function validatePassword(candidate)
+{
+	return /^[\w\-\$]{6,}$/.test(candidate) ? "" : "password must be 6 or more alphanumeric or - or $ characters";
+}
+validatePassword.runat = "both";
+
+function saveCredentialsValidation(username, errors)
+{
+	var errorText ="";
+
+	// Drop the temporary storage table if it exists
+	sql = "DROP TABLE IF EXISTS userschattempstorage";
+
+	Jaxer.DB.execute(sql);
+
+	// Create a new temporary storage table with the required fields
+	sql = "CREATE TABLE IF NOT EXISTS userschattempstorage " +
+		"( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+		", username VARCHAR(255) NOT NULL" +
+		", errorText VARCHAR(255) NOT NULL" +
+		", UNIQUE (username)" +
+		")";
+
+	Jaxer.DB.execute(sql);
+
+		errorText = errors.join("; ");
+		// Add the required fields into a single record entry in temporary storage
+		Jaxer.DB.execute("INSERT INTO userschattempstorage (username, errorText) VALUES (?, ?)",
+			[username, errorText]);
+		// Select all record from the database, there is only 1
+		rs = Jaxer.DB.execute("SELECT * FROM userschattempstorage");
+		// Select the single record from the database
+		var tempstorage = rs.rows[0];
+		// Return the temporary storage variable to the calling function
+		return tempstorage;
+}
+
+//Account creation validation 
+function saveCredentials(username, password)
+{
+
+
+	//Build an errors array
+	var error = "";
+	var errors = [];
+	var errorText ="";
+	error = validateUsername(username);
+	//If there is an error with the username, add the error to the errors array
+	if (error != "") errors.push(error);
+	error = validatePassword(password);
+	//If there is an error with the username, add the error to the errors array
+	if (error != "") errors.push(error);
+	//concatenate the array contents into a string //send the string back to the create account function as a string
+	if(errors.length != 0)
+	{
+		var errorObject = saveCredentialsValidation(username, errors);
+		return errorObject;
+	}
+
+	//Check if the username already exists in the database.
+	var rs;
+	rs = Jaxer.DB.execute("SELECT * FROM userschat WHERE username = ?", [username]);
+	//If username already exists then, 
+	if (rs.rows.length != 0)
+	{
+		var user = rs.rows[0];
+		//retrieve the first row of the database query, assign to user variable.
+		var previousPassword = user.password;
+		//if the password from the database matches the validated password then set the global variable Jaxer.session.username to the username retrieved from the database query result.
+		if (previousPassword == password) // validate them
+		{
+			//Set the global variable Jaxer.session.username to the username retrieved from the database query result.
+			makeAuthenticated(user);
+			//return no error text 
+			if(errors.length != 0)
+			{
+				var errorObject = saveCredentialsValidation(username, errors);
+				return errorObject;
+			}
+		}
+		//if the password from the database does not match the validated password return error text to account creation
+		errors.push("username already in use");
+		if(errors.length != 0)
+		{
+			var errorObject = saveCredentialsValidation(username, errors);
+			return errorObject;
+		}
+	}
+
+		//If username does not exist then:
+		try
+		{
+			//Create a new current date and time
+			var now = new Date();
+			//Retrieve the username, password, and current date and time set the creates and last login date to now
+			Jaxer.DB.execute("INSERT INTO userschat (username, password, created, last_login) VALUES (?, ?, ?, ?)",
+				[username, password, now, now]);
+			//Select the just created user from the database
+			rs = Jaxer.DB.execute("SELECT * FROM userschat WHERE username = ?", [username]);
+			//if at least 1 record is found then:
+			if (rs.rows.length != 0)
+			{
+				//set the first ecord of the database query to the user variable.
+				var user = rs.rows[0];
+				//Set the global variable Jaxer.session.username to the username retrieved from the database query result.
+				makeAuthenticated(user);
+				//return no error text
+				if(errors.length != 0)
+				{
+					var errorObject = saveCredentialsValidation(username, errors);
+					return errorObject;
+				}
+			}
+			else
+			{
+				//if no records are found, create an error message, and add a log entry.
+				Jaxer.Log.warn("Could not find the user '" + username + "' that was just created!");
+				errors.push("Could not find the account that should have just been created");
+				if(errors.length != 0)
+				{
+					var errorObject = saveCredentialsValidation(username, errors);
+					return errorObject;
+				}
+			}
+		}
+		catch (e)
+		{
+			//if an error occurs, create an error message, and add a log entry.
+			Jaxer.Log.warn("User error when trying to save credentials: " + e);
+			errors.push("Could not create username/password");
+			if(errors.length != 0)
+			{
+				var errorObject = saveCredentialsValidation(username, errors);
+				return errorObject;
+			}
+		}
+
+}
+saveCredentials.proxy = true;
+	
+//When the login function is called from the user clicking the login button, validate the username and pasword in theinpt fields
+function checkCredentials(username, password)
+{
+	//Perform a databe query and find the username and password
+	var rs = Jaxer.DB.execute("SELECT * FROM userschat WHERE username = ? AND password = ?",
+		[username, password]);
+		//if no record is found, return an empty string to the login function
+	if (rs.rows.length === 0)
+	{
+		return "";
+	}
+	//assign the first record to the user variable
+	var user = rs.rows[0];
+	//Set the global variable Jaxer.session.username to the username retrieved from the database query result.
+	makeAuthenticated(user);
+	//eturn the  username from the database query
+	return user.username;
+}
+checkCredentials.proxy = true;
+
+//When the user logs out, delete the jaxer session username global variable
+function removeCredentials()
+{
+	delete Jaxer.session.username;
+}
+removeCredentials.proxy = true;
+
+		</script>
+		
+		<!-- This script block is a standard script block and runs on the browser only -->
+		<script type="text/javascript">
+			
+			function refreshChatroomView()
+			{
+				getRooms.async(refreshChatroomShowRooms, "hello");
+			}
+
+			function refreshChatroomShowRooms(rooms)
+			{
+				showRooms(rooms);
+			}
+			
+			function openRoom(roomNumber)
+			{
+				var url = "chatRoom.html?rnd=" + Math.random();
+				if (roomNumber != null) url += "&room=" + roomNumber;
+				if ($('openInNewWindow').checked)
+				{
+					window.open(url, true);
+				}
+				else
+				{
+					window.location = url;
+				}
+			}
+		
+// Clientside functions
+function validate(validationFunction, candidate)
+{
+	if (candidate == "") return; // Not done filling this out, perhaps
+	var error = validationFunction(candidate); //validation function is the name of the function to be called, candiate is the criteria
+	if (error != "")
+	{
+		//display error box at top of screen
+		alert(error);
+	}
+}
+
+//When the user clicks the login button or the enter key in the password box:
+function login()
+{
+	//Get the username and password from he input fields
+	var username = $('username').value;
+	var password = $('password').value;
+
+	checkCredentials.async(loginCheck, username, password);
+}
+
+function loginCheck(usernameRetrieved)
+{
+	if (usernameRetrieved != "")
+	{
+		//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login auenthicates shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent 
+		fromTemplate('loginComponent', 'loginAuthenticated');
+		//Set the authenticatedUsername field within the loginAuthenticated html template to show the username entered within the username box.
+		setTimeout("$('authenticatedUsername').innerHTML = '" + usernameRetrieved + "'", 0);
+		//refreshChatroomView, show rooms when logged in. Hide rooms when logged out
+		refreshChatroomView();
+	}
+	else
+	{
+		$('loginMessage').innerHTML = "Sorry, try again";
+	}
+}
+
+//user clicks on the log out button from the loginAuthenticated template
+function logout()
+{
+    //Delete the jaxer session username global variable
+	removeCredentials();
+	//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login auenthicates shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent 
+	fromTemplate('loginComponent', 'loginRequest');
+	//Set the loginMessage field within the loginRequest html template to show successfully logged out after 0ms
+	setTimeout("$('loginMessage').innerHTML = 'successfully logged out'", 0);
+	//refreshChatroomView, show rooms when logged in. Hide rooms when logged out
+	refreshChatroomView();
+}
+
+// loginRequest html template
+function showCreateAccount()
+{
+	//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login auenthicates shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent 
+	fromTemplate('loginComponent', 'loginCreate');
+}
+
+// logincreate html template
+function createAccount()
+{
+	// Retrieve username and password from the html template
+	var username = $('newUsername').value;
+	var password = $('newPassword').value;
+	var confirmPassword = $('confirmPassword').value;
+	// Detect error
+	if (password != confirmPassword)
+	{
+		alert("Please enter the same password twice to proceed");
+		return;
+	}
+	// Perform validation
+	saveCredentials.async(createAccountSave, username, password);
+}
+
+function createAccountSave(errorCode)
+{
+	//if no error text was received through the validation process then
+	if (errorCode.errorText == "")
+	{
+		//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login auenthicates shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent 
+		fromTemplate('loginComponent', 'loginAuthenticated');
+		//Set the authenticatedUsername field within the loginAuthenticated html template to show the username from the input field after 0ms 
+		setTimeout("$('authenticatedUsername').innerHTML = '" + errorCode.username + "'", 0);
+		//refreshChatroomView, show rooms when logged in. Hide rooms when logged out
+		refreshChatroomView();
+	}
+	else
+	{
+		//Set the createAccountMessage field within the loginAuthenticated html template to show an error after 0ms 
+		setTimeout("$('createAccountMessage').innerHTML = '" + errorCode.errorText + "'", 0);
+	}
+}
+
+//The cancel button is clicked, return to login request screen
+function cancelCreateAccount()
+{
+	//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login auenthicates shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent 
+	fromTemplate('loginComponent', 'loginRequest');
+}
+
+function handleReturn(evt, handler)
+{
+	if (!evt) evt = window.event;
+	if ((evt.which && evt.which == 13) || 
+	    (evt.keyCode && evt.keyCode == 13))
+	{
+		handler();
+		return false; 
+	}
+}
+
+
+
+		</script>
+	</head>
+	
+	<!-- We set a new attribute on the body tag: 'onserverload'. It works just like 'onload', but
+			on the server-side. When Jaxer is done loading the page, the function(s) specified will
+			be executed. You can have both onserverload and onload, for server and client, 
+			respectively. -->
+    <body onserverload="initAuthentication(); prepareDOM();">
+
+        <div id='sampleHeader'>
+            <div class='sampleTitle'>
+               <img src='images/user_comment.png'/> Simple Chat Demo
+            </div>
+        </div>
+        <div id='applicationContent'>
+            <div id="roomTemplate" style="display:none">
+                <div class="room-container">
+                    <a href="javascript:openRoom($room_id$); void(0)" class="room-link"><span class="room-id">Room $room_id$</span> <span class="room-started">Started: $started$</span> <span class="room-last">Last message: $last$</span></a>
+                </div>
+            </div>
+			<div class='loginPanel'>
+            	<!--<script type="text/javascript" src="jaxer-include/_login.js" runat="server"></script>-->
+	            <!--<jaxer:include src="jaxer-include/_login.html"></jaxer:include>-->
+
+
+<!-- BEGINNING OF TEMPLATES -->
+<div id="templates" style="display:none">
+	<div id="loginAuthenticated">
+		Welcome, <span $id="authenticatedUsername"></span>!
+		<a href="javascript:logout(); void(0)">logout...</a>
+	</div>
+	<div id="loginRequest">
+		<table>
+			<tr>
+				<td>Username:</td>
+				<!--Validate function runs the username validation through an error checker, displaying an alert window if the username contains symbols-->
+				<td><input type="text" size="40" $id="username" onblur="validate(validateUsername, this.value)"></td>
+			</tr>
+			<tr>
+				<td>Password:</td>
+				<!--When the enter button is pressed, perrform the login javascript action-->
+				<!--Validate function runs the password validation through an error checker, displaying an alert window if the password does not meet the criteria:password must be 6 or more alphanumeric or - or $ characters-->
+				<td><input type="password" size="40" $id="password" onblur="validate(validatePassword, this.value)"
+				           onkeypress="handleReturn(event, login)"></td>
+			</tr>
+			<tr>
+				<td colspan=3>
+					<!--
+			//Fill the login compoent div with the HTML contents of login auenthicated. 
+			// login request asks the user to login.
+			// login authenticated shows that the user is currently logged in, and asks if they want to log out
+			// login create asks the user to setupp a new username, password, and to confor thr password
+			//The id becomes the logincomponent -->
+					<a href="javascript:showCreateAccount(); void(0)">Create new account...</a>
+					<input type="button" value="Login" onclick="login()">
+					<span $id="loginMessage"></span>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id="loginCreate">
+		<table>
+			<tr>
+				<td>New username:</td>
+				<!--Validate function runs the username validation through an error checker, displaying an alert window if the username contains symbols-->
+				<td><input type="text" size="40" $id="newUsername" onblur="validate(validateUsername, this.value)"></td>
+			</tr>
+			<tr>
+				<td>New password:</td>
+				<!--Validate function runs the password validation through an error checker, displaying an alert window if the password does not meet the criteria:password must be 6 or more alphanumeric or - or $ characters-->
+				<td><input type="password" size="40" $id="newPassword" onblur="validate(validatePassword, this.value)"></td>
+			</tr>
+			<tr>
+				<td>Confirm password:</td>
+				<!--When the enter button is pressed, perform the createAccount javascript action-->
+				<td><input type="password" size="40" $id="confirmPassword"
+				           onkeypress="handleReturn(event, createAccount)"></td>
+			</tr>
+			<tr>
+				<td>
+					<a href="javascript:cancelCreateAccount(); void(0)">Cancel</a><!--Exceute javascript command on click, compare this approach to a button with a Javascript command, which calls a subsequent Javascript command-->
+					<input type="button" value="Create" onclick="createAccount()">
+				</td>
+				<td>
+					<span $id="createAccountMessage"></span>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
+<!-- END OF TEMPLATES -->
+
+<div id="loginComponent"></div>
+
+
+			</div>
+			<div class='roomPanel'>
+            <div>
+                <span class="rooms-title">Recent Chat Rooms:</span>
+                &nbsp;&nbsp;<input type="button" value="refresh" onclick="refreshChatroomView()">
+            </div>
+            <br>
+            <div id="rooms" class="rooms-container">
+                (No rooms, or not logged in)
+            </div>
+            <br>
+            <div>
+                <input type="button" value="new room..." onclick="openRoom()">
+				<span>&nbsp;&nbsp;<input type="checkbox" id="openInNewWindow">Open rooms in new window/tab</span>
+            </div>
+			</div>
+			
+	</body>
+</html>

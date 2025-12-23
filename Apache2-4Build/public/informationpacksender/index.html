@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Meta data -->
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Information Pack Sender</title>
+
+        <script src="js/bootstrap.min.js"></script>
+		<link rel='stylesheet' type='text/css' href='css/bootstrap.min.css'>
+    </head>
+    <style>
+        .redValidationBox {
+            color: rgb(255, 0, 0);
+        }
+    </style>
+    <script type="text/javascript">
+
+        function sendInformationPack()
+			{
+                sendInformatonPackButton.value = "Sending Information Pack...";
+                sendInformatonPackButton.disabled = true;
+
+                var userFormEmail = $('user-Form-Email').value;
+
+                //Display red text with the error in it when a validation error occurs
+                document.getElementById("inputEmail1Message").textContent = validateEmail(userFormEmail);
+                setTimeout("document.getElementById(" + "\"inputEmail1Message\"" + ").textContent = '" + "'", 4000);
+
+                serverSendInformationPack.async(sendFinished, userFormEmail);
+			}
+			
+			/**
+			 * This client-side function is called once the server-side sendSMTPEmail
+			 * function returns from sending out the email
+			 * 
+			 * @param {instance} msg The message returned from the sendSMTPEmail() function
+			 */
+			function sendFinished(msg)
+			{
+				// Set the button state and label back to normal
+                sendInformatonPackButton.value = "Send Information Pack";
+                sendInformatonPackButton.disabled = false;
+
+                    document.getElementById("inputAccountLoginMessage").textContent = msg.userexistsmessage;
+                            setTimeout("document.getElementById(" + "\"inputAccountLoginMessage\"" + ").textContent = '" + "'", 4000);
+			}
+    </script>
+
+    <!-- This script block will execute only on the server with a prxy to the user because of the
+			runat="server-proxy" attributes. -->
+    <script type="text/javascript" runat="server-proxy">
+        /*
+         * Save a user directly into the database normal version
+         */
+         function serverSendInformationPack(userFormEmail)
+        {
+	        //starting value
+	        userexistsmessagedata = "";
+
+            //Build an errors array
+            var error = "";
+            var errors = [];
+            error = validateEmail(userFormEmail);
+            //If there is an error with the email, add the error to the errors array
+            if (error != "") errors.push(error);
+
+            //concatenate the array contents into a string //send the string back to the create account function as a string
+            if (errors.length > 0) userexistsmessagedata = errors.join("; ");
+
+            if(userexistsmessagedata === "")
+            {
+                //Prepare an email in Thunderbird
+                Jaxer.Process.execAsync("E:\\Downloaded Programs\\Mozilla Thunderbird\\thunderbird.exe", "-compose", "from='emiladdress',to='" + userFormEmail + "',subject='Information Pack',message='E:\\Aptana Jaxer\\local_jaxer\\data\\DEFAULT\\info pack html original.html',attachment='E:\\Aptana Jaxer\\local_jaxer\\data\\DEFAULT\\Info Pack.pdf'");
+            }
+
+            // Drop the temporary storage table if it exists
+            sql = "DROP TABLE IF EXISTS infopacktempstorage";
+
+            Jaxer.DB.execute(sql);
+
+            // Create a new temporary storage table with the required fields
+            sql = "CREATE TABLE IF NOT EXISTS infopacktempstorage " +
+                "( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+                ", userexistsmessage VARCHAR(255) NOT NULL" +
+                ", email VARCHAR(255) NOT NULL" +
+                ", UNIQUE (email)" +
+                ")";
+            
+            Jaxer.DB.execute(sql);
+
+			// Add the required fields into a single record entry in temporary storage
+			Jaxer.DB.execute("INSERT INTO infopacktempstorage (userexistsmessage, email) VALUES (?, ?)",
+				[userexistsmessagedata, ""]);
+
+            // Select all record from the database, there is only 1
+            var rs = Jaxer.DB.execute("SELECT * FROM infopacktempstorage");
+            // Select the single record from the database
+            var tempstorage = rs.rows[0];
+            // Return the temporary storage variable to the calling function
+            return tempstorage;
+        }
+    </script>
+
+	<!-- This script block will be available on both client and server since the 
+			runat attribute is set to 'both'. -->
+    <script type="text/javascript" runat="both">
+        /*
+         * Easy access to a named element in the DOM
+         */
+        function $(id) 
+        { 
+            return document.getElementById(id); 
+        }
+
+        //Upon exiting the input field (client side), or when performing account creation validation (server side), validate the username for alphanumeric or -
+        function validateEmail(candidate)
+        {
+            return /@.*\./i.test(candidate) ? "" : "Must be an email address";	
+        }
+        validateEmail.runat = "both";
+    </script>
+
+	<body>
+        <nav id="headerTag">
+            <div class="container">
+                <header class="container mt-5 py-3 mb-4 border-bottom">
+                    <div class="row align-items-left">
+                    <div class="col">
+                        <img src="img/1.png" height="70" width="70"> &nbsp
+                        <span>Information Pack Sender</span>
+                    </div>
+                </header>
+            </div>
+        </nav>	
+        <div class="container mt-5">
+            <div class="mb-3">
+                <label for="user-Form-Email" class="form-label">Email:</label>
+                <input type="email" class="form-control" id="user-Form-Email" name="user-Form-Email">
+                <span id="inputEmail1Message" class="redValidationBox"></span>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-10">
+                    <span id="inputAccountLoginMessage" class="redValidationBox"></span>
+                </div>
+            </div> 
+            <input type="button" class="btn btn-primary" id="sendInformatonPackButton" value="Send Information Pack" onclick="sendInformationPack()">
+        </div>
+    </body>
+</html>

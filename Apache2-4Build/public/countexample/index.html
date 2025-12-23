@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Meta data -->
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Jaxer Counter</title>
+        <script src="js/bootstrap.min.js"></script>
+		<link rel='stylesheet' type='text/css' href='css/bootstrap.min.css'>
+    </head>
+    <style>
+    </style>
+
+    <script type="text/javascript">
+        function increment(){
+            serverIncrement.async(incrementDecrementResponse, "hello");
+        }
+
+        function decrement(){
+            serverDecrement.async(incrementDecrementResponse, "hello");
+        }
+
+        function incrementDecrementResponse(msg){
+				$("countSpan").innerHTML = "Count: " + msg;
+        }
+
+    </script>
+
+    <script type="text/javascript" runat="server">
+    
+        //Application starts here
+		function initAuthentication()
+		{
+                var countertextObject = document.createElement("textarea");
+				countertextObject.id = "welcomeboxy";
+                countertextObject.value = "hello world";
+                document.body.insertBefore(countertextObject, document.body.firstChild);
+
+                var templates = new Array();
+
+                templates.push({id:0, username:"hello world", displayname:"hello world"});
+                templates.push({id:1, username:"anson", displayname:"Anson"});
+                templates.push({id:2, username:"jack", displayname:"Jack"});
+                templates.push({id:3, username:"adam", displayname:"Adam"});
+
+    			var queryParts = Jaxer.request.parsedUrl.queryParts;
+				var roomId = queryParts.hasOwnProperty("id") ? queryParts["id"] : -1;
+
+                templates.push({id:roomId, username:"hello world", displayname:"hello world"});
+
+                for (var i=templates.length-1; i>0; i--)
+				{
+					var task = templates[i];
+                    addUserToUI(task.id, task.username, task.displayname)
+				}
+
+                var countExampleSql = "CREATE TABLE IF NOT EXISTS countExample " +
+                    "( id INTEGER PRIMARY KEY AUTO_INCREMENT " +
+                    ", countAmount INTEGER" +
+                    ")";
+                Jaxer.DB.execute(countExampleSql);
+
+                var countTotal = Jaxer.DB.execute("SELECT COUNT(*) FROM countExample").singleResult;
+                const countStartVar = 0;
+
+                if(countTotal<1) {
+                    Jaxer.DB.execute("INSERT INTO countExample (countAmount) VALUES (?)",
+                    [0]);            // Add the required fields into a single record entry in temporary storage
+                }
+
+                countTotal = Jaxer.DB.execute("SELECT COUNT(*) FROM countExample").singleResult;
+
+                var resultSet = Jaxer.DB.execute("SELECT * FROM countExample");
+                var counterAmount = resultSet.rows[0];
+
+                var countspan = document.createElement("span");
+				countspan.id = "countSpan";
+                countspan.innerHTML = "Count: " + counterAmount.countAmount;
+				$("countStart").insertBefore(countspan, $("countStart").firstChild);
+        }
+
+              function addUserToUI(id, username, displayname)
+			{
+				var tr = document.createElement("tr");
+				tr.id = "task_" + id;
+				tr.className = "task";
+
+				var idtd = document.createElement("td");
+				idtd.setAttribute("class", "double-wall-padding collapseabletable");
+                idtd.innerHTML = id;
+				tr.appendChild(idtd);
+
+				var usernametd = document.createElement("td");
+				usernametd.setAttribute("class", "double-wall-padding collapseabletable");
+                usernametd.innerHTML  = username;
+				tr.appendChild(usernametd);
+
+                var displaynametd = document.createElement("td");
+				displaynametd.setAttribute("class", "double-wall-padding collapseabletable");
+                displaynametd.innerHTML = displayname;
+				tr.appendChild(displaynametd);
+
+				$("outputTable").insertBefore(tr, $("outputTable").firstChild);
+			}
+
+
+    </script>
+
+
+    <!-- This script block will execute only on the server with a prxy to the user because of the
+			runat="server-proxy" attributes. -->
+    <script type="text/javascript" runat="server-proxy">
+        function serverIncrement(filler){
+            var resultSet = Jaxer.DB.execute("SELECT * FROM countExample");
+            var counterAmount = resultSet.rows[0].countAmount+=1;
+            Jaxer.DB.execute("UPDATE countExample SET countAmount = ? WHERE id = 1",
+                [counterAmount]);  
+            // Create a new temporary storage table with the required fields        
+            return counterAmount;             // Select the single record from the database
+        }
+
+        function serverDecrement(filler){
+            var resultSet = Jaxer.DB.execute("SELECT * FROM countExample");
+            var counterAmount = Math.max(resultSet.rows[0].countAmount-=1,0);
+            Jaxer.DB.execute("UPDATE countExample SET countAmount = ? WHERE id = 1",
+                [counterAmount]);  
+            // Create a new temporary storage table with the required fields        
+            return counterAmount;             // Select the single record from the database
+        }
+    </script>
+
+
+	<!-- This script block will be available on both client and server since the 
+			runat attribute is set to 'both'. -->
+    <script type="text/javascript" runat="both">
+        /*
+         * Easy access to a named element in the DOM
+         */
+        function $(id) { 
+            return document.getElementById(id); 
+        }
+    </script>
+
+    <body class="nes-container is-dark" onserverload="initAuthentication();">
+        <div class="main">
+                <table class="collapseabletable">
+                  <thead>
+                    <tr>
+                      <td class="double-wall-padding collapseabletable">id</td>
+                      <td class="double-wall-padding collapseabletable">username</td>
+                      <td class="double-wall-padding collapseabletable">displayname</td>
+                    </tr>
+                  </thead>
+                  <tbody id="outputTable">
+
+                  </tbody>
+                </table>
+
+                <h1 id="countStart">
+                    
+                </h1>
+
+                <button onclick="increment()">
+                    Increment
+                </button>
+                <button onclick="decrement()"">
+                    Decrement
+                </button>
+
+            </div>
+        </div>
+    </body>
+</html>

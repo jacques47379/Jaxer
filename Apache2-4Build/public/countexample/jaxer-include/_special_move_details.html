@@ -1,0 +1,7 @@
+<!-- Example in app/views/fighters/_special_move_details.html.erb -->
+<% if @special_move %>
+  <h2><%= @special_move[:name] %></h2>
+  <p><%= @special_move[:description] %></p>
+<% else %>
+  <p>Please select a special move.</p>
+<% end %>

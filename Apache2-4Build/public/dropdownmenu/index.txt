@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Meta data -->
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Ryu Jaxer</title>
+
+        <script src="js/bootstrap.min.js"></script>
+		<link rel='stylesheet' type='text/css' href='css/bootstrap.min.css'>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
+  <link rel="stylesheet" href="css/fighter.css">
+  <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
+    </head>
+    <style>
+        .redValidationBox {
+            color: rgb(255, 0, 0);
+        }
+    </style>
+
+    <script type="text/javascript">
+
+        function buildFighter(fighter)
+        {
+            serverBuildFighter.async(buildFighterResponse, "hello");
+        }
+
+        function buildFighterResponse(tempResultsArray)
+        {
+            var ele = document.getElementById("fighterSelectText");
+		    ele.innerHTML = '<option value="">-- Select --</option>';
+		    for (let i = 0; i < tempResultsArray.rows.length; i++) {
+		        ele.innerHTML = ele.innerHTML +
+			    '<option value="' + tempResultsArray.rows[i].name + '">' + tempResultsArray.rows[i].name + '</option>';
+		    };
+            ele = document.getElementById("techniqueSelectText");
+            ele.selectedIndex = 0;
+            buildTechnique("hello");
+        }    
+        
+        function selectFighter(fighter)
+        {
+            var ele = document.getElementById("fighterSelectText");
+            var eleIndex = ele.selectedIndex; // Get the index of the selected option
+            var eleText = ele.options[eleIndex].text; // Access the option at that index and get its text
+           // console.log(fighter);
+            if(eleIndex > 0)
+            {
+                serverSelectFighter.async(selectFighterResponse, eleText);
+            }
+            if(eleIndex === 0)
+            {
+                var ele = document.getElementById("fighterAge");
+                ele.innerHTML = "";
+                ele = document.getElementById("fighterCountry");
+                ele.innerHTML = "";
+                ele = document.getElementById("fighterStyle");
+                ele.innerHTML = "";
+                ele = document.getElementById("fighter-avatar");
+                ele.src = "img/no_fighter.png";
+            }
+        }
+
+        function selectFighterResponse(tempResultsArray)
+        {
+            var ele = document.getElementById("fighterAge");
+		    ele.innerHTML = tempResultsArray.age;
+            ele = document.getElementById("fighterCountry");
+		    ele.innerHTML = tempResultsArray.country;
+            ele = document.getElementById("fighterStyle");
+		    ele.innerHTML = tempResultsArray.style;
+            ele = document.getElementById("fighter-avatar");
+            ele.src = tempResultsArray.image;
+            deselectTechnique("hello");
+        } 
+
+        function buildTechnique(fighter)
+        {
+            var ele = document.getElementById("fighterSelectText");
+            var eleIndex = ele.selectedIndex; // Get the index of the selected option
+            var eleText = ele.options[eleIndex].text; // Access the option at that index and get its text
+            if(eleIndex > 0)
+            {
+                serverBuildTechnique.async(buildTechniqueResponse, eleText);
+            }
+        }
+
+        function buildTechniqueResponse(tempResultsArray)
+        { 
+            ele = document.getElementById("techniqueSelectText");
+		    ele.innerHTML = '<option value="">-- Select --</option>';
+		    for (let i = 0; i < tempResultsArray.rows.length; i++) {
+		        ele.innerHTML = ele.innerHTML +
+			    '<option value="' + tempResultsArray.rows[i].name + '">' + tempResultsArray.rows[i].name + '</option>';
+		    };
+        }  
+
+        function selectTechnique(technique)
+        {
+            var ele = document.getElementById("techniqueSelectText");
+            var eleIndex = ele.selectedIndex; // Get the index of the selected option
+            var eleText = ele.options[eleIndex].text; // Access the option at that index and get its text
+            
+            serverSelectTechnique.async(selectTechniqueResponse, eleText);
+        }
+
+        function selectTechniqueResponse(tempResultsArray)
+        {
+            var test = tempResultsArray.rows.pop();
+            console.log(test);
+
+            setTimeout("document.getElementById(" + "\"" + test + "\"" + ").style.display = \"block\"", 800);
+
+            for(var i = 0; tempResultsArray.rows.length-1; i++)
+            {
+                setTimeout("document.getElementById(" + "\"" + tempResultsArray.rows[i].file + "\"" + ").style.display = \"none\"", 200);
+
+                //setTimeout("document.getElementById(" + "\"" + test + "\"" + ").style.display = \"block\"", 1000);
+            }
+            
+        } 
+
+        function deselectTechnique(technique)
+        {           
+            serverDeselectTechnique.async(deselectTechniqueResponse, "hello");
+        }
+
+        function deselectTechniqueResponse(tempResultsArray)
+        {
+            for(var i = 0; tempResultsArray.rows.length-1; i++)
+            {
+                setTimeout("document.getElementById(" + "\"" + tempResultsArray.rows[i].file + "\"" + ").style.display = \"none\"", 200);
+            }
+        } 
+    </script>
+
+    <script type="text/javascript" runat="server">
+    
+        //Application starts here
+		function initAuthentication()
+		{
+            // Drop the temporary storage table if it exists
+            sql = "DROP TABLE IF EXISTS welcometostreetfighterlist";
+
+            Jaxer.DB.execute(sql);
+
+            // Create a new temporary storage table with the required fields
+            sql = "CREATE TABLE IF NOT EXISTS welcometostreetfighterlist" +
+                "( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+                ", name VARCHAR(255) NOT NULL" +
+                ", age INTEGER NOT NULL" +
+                ", country VARCHAR(255) NOT NULL" +
+                ", style VARCHAR(255) NOT NULL" +
+                ", movesetid INTEGER NOT NULL" +
+                ", image VARCHAR(255) NOT NULL" +
+                ", UNIQUE (name)" +
+                ")";
+            
+            Jaxer.DB.execute(sql);
+
+            // Add the required fields into a single record entry in temporary storage
+            Jaxer.DB.execute("INSERT INTO welcometostreetfighterlist (name, age, country, style, movesetid, image) VALUES (?, ?, ?, ?, ?, ?)",
+                ["ryu", 30, "Japan", "ansatsuken", 1, "img/ryu.jpg"]);
+
+            Jaxer.DB.execute("INSERT INTO welcometostreetfighterlist (name, age, country, style, movesetid, image) VALUES (?, ?, ?, ?, ?, ?)",
+                ["sagat", 41, "Thailand", "Muay Thai", 2, "img/sagat.jpg"]);
+
+            Jaxer.DB.execute("INSERT INTO welcometostreetfighterlist (name, age, country, style, movesetid, image) VALUES (?, ?, ?, ?, ?, ?)",
+                ["chunli", 26, "Hong Kong", "Chinese Kempo", 3, "img/chunli.jpg"]);
+
+            // Drop the temporary storage table if it exists
+            sql = "DROP TABLE IF EXISTS welcometostreetfightermoveset";
+
+            Jaxer.DB.execute(sql);
+
+            // Create a new temporary storage table with the required fields
+            sql = "CREATE TABLE IF NOT EXISTS welcometostreetfightermoveset" +
+                "( id INTEGER PRIMARY KEY AUTO_INCREMENT" +
+                ", moveid INTEGER NOT NULL" +
+                ", movesetid INTEGER NOT NULL" +
+                ", name VARCHAR(255) NOT NULL" +
+                ", file VARCHAR(255) NOT NULL" +
+                ", UNIQUE (moveid)" +
+                ", FOREIGN KEY (movesetid) REFERENCES welcometostreetfighterlist(movesetid)" +
+                ")";
+
+            Jaxer.DB.execute(sql);
+
+            Jaxer.DB.execute("INSERT INTO welcometostreetfightermoveset (moveid, movesetid, name, file) VALUES (?, ?, ?, ?)",
+                [1, 1, "Hadouken", "HadoukenFile"]);
+
+            Jaxer.DB.execute("INSERT INTO welcometostreetfightermoveset (moveid, movesetid, name, file) VALUES (?, ?, ?, ?)",
+                [2, 1, "Shoryuken", "ShoryukenFile"]);
+
+            Jaxer.DB.execute("INSERT INTO welcometostreetfightermoveset (moveid, movesetid, name, file) VALUES (?, ?, ?, ?)",
+                [3, 2, "Tiger Knee", "TigerKneeFile"]);
+
+            Jaxer.DB.execute("INSERT INTO welcometostreetfightermoveset (moveid, movesetid, name, file) VALUES (?, ?, ?, ?)",
+                [4, 2, "Tiger Shot", "TigerShotFile"]);
+
+            Jaxer.DB.execute("INSERT INTO welcometostreetfightermoveset (moveid, movesetid, name, file) VALUES (?, ?, ?, ?)",
+                [5, 3, "Kikoken", "KikokenFile"]);
+
+            Jaxer.DB.execute("INSERT INTO welcometostreetfightermoveset (moveid, movesetid, name, file) VALUES (?, ?, ?, ?)",
+                [6, 3, "Renkiko", "RenkikoFile"]);
+        }
+
+    </script>
+
+
+    <!-- This script block will execute only on the server with a prxy to the user because of the
+			runat="server-proxy" attributes. -->
+    <script type="text/javascript" runat="server-proxy">
+        function serverBuildFighter(filler)
+        {
+            // Create a new temporary storage table with the required fields
+              var rs = Jaxer.DB.execute("SELECT l.name FROM welcometostreetfighterlist l");          
+            // Select the single record from the database
+            return rs;
+        }
+
+        function serverSelectFighter(fighter)
+        {
+            // Create a new temporary storage table with the required fields
+              var rs = Jaxer.DB.execute("SELECT l.age, l.country, l.style, l.image FROM welcometostreetfighterlist l WHERE l.name = ?",
+                    [fighter]);      
+            // Select the single record from the database
+            var tempstorage = rs.rows[0];
+            // Return the temporary storage variable to the calling function
+            return tempstorage;
+        }
+
+        function serverBuildTechnique(fighter)
+        {
+            // Create a new temporary storage table with the required fields
+            var rs = Jaxer.DB.execute("SELECT m.name FROM welcometostreetfighterlist l, " +
+                        "welcometostreetfightermoveset m WHERE l.name = ? AND l.movesetid = m.movesetid", [fighter]);        
+            // Select the single record from the database
+            return rs;
+        }
+
+        function serverSelectTechnique(technique)
+        {
+            // Create a new temporary storage table with the required fields
+            var temparray = Jaxer.DB.execute("SELECT m.file FROM welcometostreetfightermoveset m"); 
+            var temparray2 = Jaxer.DB.execute("SELECT m.file FROM welcometostreetfightermoveset m where m.name = ?", [technique]); 
+
+            var temparraylength = temparray.rows.length;
+            temparray.rows.push(temparray2.rows[0].file);
+            return temparray;
+        }
+
+        function serverDeselectTechnique(technique)
+        {
+            // Create a new temporary storage table with the required fields
+            var temparray = Jaxer.DB.execute("SELECT m.file FROM welcometostreetfightermoveset m");  
+            return temparray;
+        }
+
+    </script>
+
+
+	<!-- This script block will be available on both client and server since the 
+			runat attribute is set to 'both'. -->
+    <script type="text/javascript" runat="both">
+        /*
+         * Easy access to a named element in the DOM
+         */
+        function $(id) 
+        { 
+            return document.getElementById(id); 
+        }
+
+		function fromTemplate(idTarget, idSource) { $(idTarget).innerHTML = $(idSource).innerHTML.replace(/(\W)\$id\=/g, "$1id="); }
+
+        //Upon exiting the input field (client side), or when performing account creation validation (server side), validate the username for alphanumeric or -
+        function validateEmail(candidate)
+        {
+            return /@.*\./i.test(candidate) ? "" : "Must be an email address";	
+        }
+        validateEmail.runat = "both";
+    </script>
+
+    <body class="nes-container is-dark" onserverload="initAuthentication();">
+        <div class="main">
+
+            <h1> Welcome To Street Fighter </h1>
+            <p class="nes-text padding-top"> Select Your Character </p>
+
+            <form class="nes-select is-dark">
+                <select onfocus="buildFighter(this)" onchange="selectFighter(this)" id="fighterSelectText">
+                    <option selected>-- Select --</option>
+                </select>
+            </form>
+            <p class="nes-text padding-top"> Select Your Special Move </p>
+
+            <form class="nes-select is-dark" id="techniques">
+                <select onfocus="buildTechnique(this)" onchange="selectTechnique(this)" id="techniqueSelectText">
+                    <option selected>-- Select --</option>
+                </select>
+            </form>
+
+            <div class="nes-container is-dark grid-3-columns margin-top">
+                <img class="fighter" id="fighter-avatar" src="img/no_fighter.png" alt="no-fighter">
+                <div id="fighter-data">
+                    <ul class="nes-list is-disc">
+                        <li style="margin-bottom: 10px">Age: <span id="fighterAge"></span></li>
+                        <li style="margin-bottom: 10px">Country: <span id="fighterCountry"></span></li>
+                        <li style="margin-bottom: 10px"><div>Fighting Style:</div> <div><span id="fighterStyle"></span></div></li>
+                    </ul>
+                </div>
+                <div class="is-dark" id="techniqueComponent">
+					<div id="TigerKneeFile" class="fighter-special" style="display:none">
+                        <div style="display: block; margin-bottom: 30px" href="#" class="nes-badge">
+                            <span class="is-primary">Tiger Knee</span>
+                        </div>
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-right.svg" alt=""> </a>
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-down.svg" alt=""> </a>
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-down-right.svg" alt=""> </a>
+                        +
+                        <a class="nes-btn" href="#">Kick</a>
+
+                    </div>
+                    <div id="TigerShotFile" class="fighter-special" style="display:none">
+                        <div style="display: block; margin-bottom: 30px" href="#" class="nes-badge">
+                            <span class="is-primary">Tiger Knee</span>
+                        </div>
+
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-right.svg" alt=""> </a>
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-down.svg" alt=""> </a>
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-down-right.svg" alt=""> </a>
+                        +
+                        <a class="nes-btn" href="#">Kick</a>
+                    </div>
+                    <div id="HadoukenFile" class="fighter-special" style="display:none">
+                        <div style="display: block; margin-bottom: 30px" href="#" class="nes-badge">
+                            <span class="is-primary">Tiger Knee</span>
+                        </div>
+
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-right.svg" alt=""> </a>
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-down.svg" alt=""> </a>
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-down-right.svg" alt=""> </a>
+                        +
+                        <a class="nes-btn" href="#">Kick</a>
+                    </div>
+                    <div id="ShoryukenFile" class="fighter-special" style="display:none">
+                        <div style="display: block; margin-bottom: 30px" href="#" class="nes-badge">
+                            <span class="is-primary">Shoryuken</span>
+                        </div>
+
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-down.svg" alt=""> </a>
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-right.svg" alt=""> </a>
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-down-right.svg" alt=""> </a>
+                        +
+                        <a class="nes-btn" href="#">Punch</a>
+                    </div>
+                    <div id="RenkikoFile" class="fighter-special" style="display:none">
+                        <div style="display: block; margin-bottom: 30px" href="#" class="nes-badge">
+                            <span class="is-primary">Renkiko</span>
+                        </div>
+
+                        <span>Press</span>
+                        <a class="nes-btn" href="#">Kick</a>
+                        <span>repeatedly</span>
+                    </div>
+                    <div id="KikokenFile" class="fighter-special" style="display:none">
+                        <div style="display: block; margin-bottom: 30px" href="#" class="nes-badge">
+                            <span class="is-primary">Kikoken</span>
+                        </div>
+
+                        <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-left.svg" alt=""> </a>
+                        <span> (hold) </span>
+                        <a href="#" class="nes-btn">  <img style="height:25px; width:25px; " src="img/arrow-right.svg" alt="">   </a>
+                        <span> + </span>
+                        <a class="nes-btn" href="#">Punch</a>
+                    </div>
+                    <div id="Special" class="fighter-special" style="display:none">
+                        <div style="display: block; margin-bottom: 30px" href="#" class="nes-badge">
+                            <span class="is-primary">Special</span>
+                        </div>
+
+                    <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-down.svg" alt=""> </a>
+                    <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-down-right.svg" alt=""> </a>
+                    <a href="" class="nes-btn"> <img style="height:25px; width:25px; " src="img/arrow-right.svg" alt=""> </a>
+                    +
+                    <a class="nes-btn" href="#">Punch</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

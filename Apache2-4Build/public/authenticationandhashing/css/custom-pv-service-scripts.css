@@ -1,0 +1,26 @@
+.alert {
+	font-weight: bold;
+}
+
+.flat-list li {
+	display: inline;
+}
+
+footer {
+	margin-top: 20px;
+}
+
+.navbar {
+	background-color: #eeeee !important;
+}
+
+.required {
+	font-weight:bold;
+	color:red;
+}
+
+@media (min-width: 1200px) {
+    .container{
+        max-width: 1550px;
+    }
+}

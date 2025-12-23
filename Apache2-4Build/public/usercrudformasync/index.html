@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Meta data -->
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Codes With Pankaj</title>
+        <script src="js/bootstrap.min.js"></script>
+		<link rel='stylesheet' type='text/css' href='css/bootstrap.min.css'>
+
+		<style>
+            /* Table utility style declarations */
+                .collapseabletable {
+                   border-collapse: collapse;
+                   border-spacing: 0;
+                   border: 1px solid;
+                 }
+                   
+                .collapseabletablerow {
+                    border: 1px solid;
+                   }
+    
+                .double-wall-padding {
+                  padding-left:16px;
+                  padding-right:16px;
+                }	         
+        </style>
+    </head>
+	<body>	
+        <nav id="headerTag">
+            <div id="header" class="container">
+                <header class="container mt-5 py-3 mb-4 border-bottom">
+                    <div class="row align-items-left">
+                        <div class="col">
+                            <a href="javascript:viewIndex(); void(0)">
+                                <img src="img/1.png" height="70" width="70"> &nbsp
+                                <span>Codes With Pankaj - @p4n.in </span>
+                            </a>
+                        </div>
+                        <div class="col col-sm-3">
+                            <ul class="nav nav-pills">
+                                <li class="nav-item"><a href="javascript:viewAddUser(); void(0)" class="nav-link active ml-3 mr-1 mt-3" aria-current="page">Add User</a></li>
+                                <li class="nav-item"><a href="javascript:viewShowUsers(); void(0)" class="nav-link active mt-3">View Users</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </header>
+                <p> - Jaxer CRUD operations</p>
+            </div>
+        </nav>	
+
+        <!-- BEGINNING OF TEMPLATES -->
+        <div id="userform" class="container mt-5" style="display:none">
+            <div class="mb-3">
+                <label for="user-Form-Name" class="form-label">Name:</label>
+	            <input type="text" class="form-control" id="user-Form-Name" name="user-Form-Name">
+            </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Password" class="form-label">Password:</label>
+		        <input type="password" class="form-control" id="user-Form-Password" name="user-Form-Password">
+	        </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Email" class="form-label">Email:</label>
+		        <input type="email" class="form-control" id="user-Form-Email" name="user-Form-Email">
+	        </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Gender" class="form-label">Gender:</label>
+		        <select class="form-select" id="user-Form-Gender" name="user-Form-Gender">
+	                <option value="Other">--Select--</option>
+	                <option value="Male">Male</option>
+	                <option value="Female">Female</option>
+		        </select>
+	        </div>
+	        <div class="mb-3">
+		        <label for="user-Form-Country" class="form-label">Country:</label>
+		        <select class="form-select" id="user-Form-Country" name="user-Form-Country">
+	                <option value="India">India</option>
+	                <option value="Pakistan">Pakistan</option>
+	                <option value="Afghanistan">Afghanistan</option>
+	                <option value="Burma">Burma</option>
+	                <option value="Australia">Australia</option>
+	                <option value="Canada">Canada</option>
+	                <option value="Brazil">Brazil</option>
+	                <option value="France">France</option>
+	                <option value="Japan">Japan</option>
+	                <option value="Mexico">Mexico</option>
+	                <option value="South Africa">South Africa</option>
+	                <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="usersTable" class="container mt-5" style="display:none">
+            <div class="mb-3">
+                <h4 class="display-5 fw-bold text-body-emphasis">Users</h4>
+                <table class="collapseabletable">
+                    <thead>
+                        <tr>
+                            <td class="double-wall-padding collapseabletable">Username</td>
+                            <td class="double-wall-padding collapseabletable">Password</td>
+                            <td class="double-wall-padding collapseabletable">Email</td>
+                            <td class="double-wall-padding collapseabletable">Gender</td>
+                            <td class="double-wall-padding collapseabletable">Country</td>
+                            <td class="double-wall-padding collapseabletable">Edit box</td>
+                            <td class="double-wall-padding collapseabletable">Delete box</td>
+                        </tr>
+                    </thead>
+                    <tbody id="outputTable">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="addUserButton" class="container mt-5" style="display:none">
+              <input type="button" class="btn btn-primary" id="addUserButton" value="Add User" onclick="addUser()">
+          </div>
+
+        <div id="editUserButton" class="container mt-5" style="display:none">
+              <input type="button" class="btn btn-primary" id="editUserButton" value="Edit User" onclick="editUser()">
+          </div>          
+<!-- END OF TEMPLATES -->
+
+    </body>
+
+    <script>
+        //views
+        function viewIndex()
+        {
+            document.getElementById("usersTable").style.display = "none";
+            document.getElementById("userform").style.display = "none";
+            document.getElementById("addUserButton").style.display = "none";
+            document.getElementById("editUserButton").style.display = "none";
+        }
+    
+        function viewAddUser()
+        {
+    	    $('user-Form-Name').value = "";
+            $('user-Form-Password').value = "";
+            $('user-Form-Email').value = "";
+            $('user-Form-Gender').value = "";
+            $('user-Form-Country').value = "";
+            document.getElementById("usersTable").style.display = "none";
+            document.getElementById("userform").style.display = "block";
+            document.getElementById("addUserButton").style.display = "block";
+            document.getElementById("editUserButton").style.display = "none";
+        }
+    
+        function viewShowUsers()
+        {
+            document.getElementById("usersTable").style.display = "block";
+            document.getElementById("userform").style.display = "none";
+            document.getElementById("addUserButton").style.display = "none";
+            document.getElementById("editUserButton").style.display = "none";
+            databaseViewUsers.async(addUserToUI, "action");
+        }
+    
+        function viewEditUser()
+        {
+            document.getElementById("usersTable").style.display = "none";
+            document.getElementById("userform").style.display = "block";
+            document.getElementById("addUserButton").style.display = "none";
+            document.getElementById("editUserButton").style.display = "block";
+        }
+
+        function editUser()
+    	{
+            editUserButton.value = "editing user...";
+    		editUserButton.disabled = true;
+    
+    		var userFormName = $('user-Form-Name').value;
+            var userFormPassword = $('user-Form-Password').value;
+            var userFormEmail = $('user-Form-Email').value;
+            var userFormGender = $('user-Form-Gender').value;
+            var userFormCountry = $('user-Form-Country').value;
+    
+            if(userFormName == "" || userFormPassword == "" || userFormEmail == "" || userFormGender == "" || userFormCountry == "")
+            {
+                alert("One of the fields is blank, please enter values for all fields.");
+                editUserButton.value = "edit User";
+                editUserButton.disabled = false;
+                return;
+            }
+    
+    		saveUserInDBEditUser.async(databaseFinishedEditUser, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry);
+    	}
+    			
+    	function databaseFinishedEditUser(msg)
+    	{
+    		// Set the button state and label back to normal
+            editUserButton.value = "edit User";
+            editUserButton.disabled = false;
+    
+            switch (msg) {
+    		    case "Successfully edited to database":
+                    var pom = document.createElement('a');
+                    pom.href = "javascript:viewIndex(); void(0)";
+                    document.body.appendChild(pom);
+                    pom.click();
+                    pom.parentNode.removeChild(pom);
+    		        break;
+    		    default:
+                alert(msg);
+    		}   
+    	}
+    			
+    	/*
+    	 * We override the ontimeoutAsync function so that we can know if we timed out
+    	 * in trying to talk to the server.
+    	 */
+    	Jaxer.Callback.ontimeoutAsync = function(xhr, timeout, extra)
+    	{
+    		databaseFinishedAddUser("The request timed out after " + timeout/1000 + " seconds, aborting.");
+    	}
+    
+        function addUser()
+    	{
+            addUserButton.value = "Adding user...";
+    		addUserButton.disabled = true;
+    
+    		var userFormName = $('user-Form-Name').value;
+            var userFormPassword = $('user-Form-Password').value;
+            var userFormEmail = $('user-Form-Email').value;
+            var userFormGender = $('user-Form-Gender').value;
+            var userFormCountry = $('user-Form-Country').value;
+    
+            if($('user-Form-Name').value == "" || $('user-Form-Password').value == "" || $('user-Form-Email').value == "" || $('user-Form-Gender').value == "" || $('user-Form-Country').value == "")
+            {
+                alert("One of the fields is blank, please enter values for all fields.");
+                addUserButton.value = "Add User";
+                addUserButton.disabled = false;
+                return;
+            }
+    
+            var newId = Math.ceil(1000000000 * Math.random());
+    		saveUserInDBAddUser.async(databaseFinishedAddUser, newId, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry);
+    	}
+    			
+    	function databaseFinishedAddUser(msg)
+    	{
+    		// Set the button state and label back to normal
+            addUserButton.value = "Add User";
+            addUserButton.disabled = false;
+     
+            switch (msg) {
+    		    case "Successfully added to database":
+                    var pom = document.createElement('a');
+                    pom.href = "javascript:viewIndex(); void(0)";
+                    document.body.appendChild(pom);
+                    pom.click();
+                    pom.parentNode.removeChild(pom);
+    			    break;
+    		    default:
+                    alert(msg);
+    		}        
+    	}
+    
+        function addUserToUI(resultSet)
+    	{
+            $("outputTable").innerHTML = "";
+    		for (var i=0; i<resultSet.rows.length; i++)
+    		{
+                var task = resultSet.rows[i];
+
+                var userFormNametd = `<td class="double-wall-padding collapseabletable">${task.userFormName}</td>
+                    <td class="double-wall-padding collapseabletable">${task.userFormPassword}</td>
+                    <td class="double-wall-padding collapseabletable">${task.userFormEmail}</td>
+                    <td class="double-wall-padding collapseabletable">${task.userFormGender}</td>
+                    <td class="double-wall-padding collapseabletable">${task.userFormCountry}</td>
+                    <td class="double-wall-padding collapseabletable"><input id="editUserCheckBox_${task.id}" type="checkbox" title="done" onclick="editUserTask(${task.id})" class="double-wall-padding collapseabletable"></td>
+                    <td class="double-wall-padding collapseabletable"><input id="deleteUserCheckBox_${task.id}" type="checkbox" title="done" onclick="completeTask(${task.id})" class="double-wall-padding collapseabletable"></td>`;
+
+				var tr = document.createElement("tr");
+				tr.id = "task_" + task.id;
+				tr.className = "task";
+
+                tr.innerHTML = userFormNametd;
+
+                $("outputTable").insertBefore(tr, $("outputTable").firstChild);
+    		}
+        }
+    
+    	function completeTask(taskId)
+    	{
+    	    var tr = $("task_" + taskId);
+    		tr.parentNode.removeChild(tr);
+    		deleteSavedTask(taskId);
+    	}
+    
+    	function editUserTask(taskId)
+    	{
+    		var tr = $("task_" + taskId);
+    		editSavedTask.async(databaseFinishedSelectUser, taskId);
+    	}
+    
+    	function databaseFinishedSelectUser(msg)
+    	{
+    		$('user-Form-Name').value = msg.userFormName;
+            $('user-Form-Password').value = msg.userFormPassword;
+            $('user-Form-Email').value = msg.userFormEmail;
+            $('user-Form-Gender').value = msg.userFormGender;
+            $('user-Form-Country').value = msg.userFormCountry;
+            viewEditUser();          
+    	}
+    </script>
+
+	<script type="text/javascript" runat="both">
+    	function $(id) 
+    	{ 
+    		return document.getElementById(id); 
+    	}
+    
+        function fromTemplate(idTarget, idSource) { $(idTarget).innerHTML = $(idSource).innerHTML.replace(/(\W)\$id\=/g, "$1id="); }
+	</script>
+
+	<script type="text/javascript" runat="server">
+        window.onserverload = function()
+		{
+            var addUsersSql = "CREATE TABLE IF NOT EXISTS users " +
+            "( id INTEGER NOT NULL" +
+            ", userFormName VARCHAR(255)" +
+            ", userFormPassword VARCHAR(255)" +
+            ", userFormEmail VARCHAR(255)" +
+            ", userFormGender VARCHAR(255)" +
+            ", userFormCountry VARCHAR(255)" +
+            ", created DATETIME NOT NULL" +
+            ")";
+			Jaxer.DB.execute(addUsersSql);
+		}
+
+		function deleteSavedTask(id)
+		{
+			Jaxer.DB.execute("DELETE FROM users WHERE id = ?", [id]);
+		}
+		deleteSavedTask.proxy = true;
+
+        function makeEditSelection(Selection)
+        {
+	        Jaxer.session.usertoEdit = Selection.id;
+        }
+
+        function removeEditSelection()
+        {
+        	delete Jaxer.session.usertoEdit;
+        }
+    </script>
+
+    <script type="text/javascript" runat="server-proxy">
+        function editSavedTask(id)
+        {
+            var resultSet = Jaxer.DB.execute("SELECT * FROM users WHERE id = ?", [id]);
+			var task = resultSet.rows[0];
+            makeEditSelection(task);
+			return task;
+        }
+
+        function saveUserInDBAddUser(id, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry)
+        {
+			try {
+				Jaxer.DB.execute("INSERT INTO users (id, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, created)" +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                [id, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, new Date()]);
+			} 
+			catch (e) {
+				return e.toString();
+			}
+			return "Successfully added to database";
+        }
+
+        function saveUserInDBEditUser(userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry)
+        {
+			try {
+                user = Jaxer.session.usertoEdit;
+
+				Jaxer.DB.execute("UPDATE users SET userFormName = ?, userFormPassword = ?, userFormEmail = ?, userFormGender = ?, userFormCountry = ? WHERE id = ?",
+                [userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, user]);      
+			} 
+			catch (e) {
+				return e.toString();
+			}
+
+            removeEditSelection();
+			return "Successfully edited to database";
+        }
+
+        function databaseViewUsers(action)
+        {
+			var resultSet = Jaxer.DB.execute("SELECT * FROM users ORDER BY created");
+			return resultSet;
+        }           
+    </script>
+</html>

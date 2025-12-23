@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Meta data -->
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Codes With Pankaj</title>
+        <script src="js/header.js"></script>
+        <script src="js/tablerow.js"></script>
+        <script src="js/jquery-3.3.1.min.js"></script>
+
+        <script src="js/bootstrap.min.js"></script>
+		<link rel='stylesheet' type='text/css' href='css/bootstrap.min.css'>
+
+		<style>
+		
+            /* Table utility style declarations */
+    
+                .collapseabletable {
+                   border-collapse: collapse;
+                   border-spacing: 0;
+                   border: 1px solid;
+                 }
+    
+                .artdiariesarticle {
+                   vertical-align: top;
+                   padding-top: 20px;
+                   padding-bottom: 10px;
+                   padding-right: 100px;
+                   border-spacing: 0px;
+                   border-collapse: collapse;
+                   }
+                   
+                .collapseabletablerow {
+                    border: 1px solid;
+                   }
+                   
+                .yellowrow {
+                    background-color:#FFFF00;
+                   }
+                   
+                .whiterow {
+                    background-color:#FFFFFF;
+                   }
+                   
+                .panel-left {
+                  float: left;
+                  padding: 10px;
+                  margin-top: 10px;
+                  margin-bottom: 20px;
+                  width: 433px;
+                  min-height: 200px;
+                  min-width: 270px;
+                  resize: horizontal;
+                }
+                
+                .panel-email-template {
+                  float: left;
+                  padding: 10px;
+                  margin-top: 10px;
+                  margin-bottom: 20px;
+                  width: 433px;
+                  min-height: 200px;
+                  min-width: 270px;
+                  resize: both;
+                }
+                
+                .panel-email-template-hidden {
+                  float: left;
+                  padding: 10px;
+                  margin-top: 10px;
+                  margin-bottom: 20px;
+                  width: 433px;
+                  min-height: 200px;
+                  min-width: 270px;
+                  resize: both;
+                  display: none;
+                }
+                            
+                .panel-left-no-resize {
+                  float: left;
+                  padding: 10px;
+                  margin-top: 10px;
+                  margin-bottom: 20px;
+                  width: 433px;
+                  min-height: 200px;
+                  min-width: 270px;
+                  resize: none;
+                }
+                
+                .panelmarginrightstyle {
+                  margin-right: 20px;
+                }
+                
+                .float-left-style {
+                  float: left;
+                }
+                
+                .displayblockstyle {
+                  display: block;
+                }
+                
+                .clearfloatstyle {
+                  clear: both;
+                }
+                
+                .bg-yellow {
+                  background-color:#FFF000;
+                }
+                
+                
+                .bg-orange {
+                  background-color:#FFD700;
+                }
+                
+                .bg-blue {
+                  background-color:#95EDEB;
+                }
+                
+                .bg-dark-grey {
+                  background-color:#e1e1e1;
+                }	
+                
+                .bg-very-dark-grey {
+                  background-color:#c1c1c1;
+                }
+                
+                .bg-lt-grey {
+                  background-color:#ebebeb;
+                }
+    
+                .medium-padding {
+                  padding:6px;
+                  padding-left:20px;
+                }	
+    
+                .small-margin {
+                  margin:1px;
+                }	
+                
+                .single-line-border-margin {
+                  margin-bottom:4px;
+                }	
+                
+                .smallish-border-margin {
+                  margin-bottom:8px;
+                }	
+    
+                .medium-border-margin {
+                  margin-bottom:16px;
+                }	
+    
+                .moderately-big-border-margin {
+                  margin-bottom:32px;
+                }
+                
+                .moderately-big-border-margin-above {
+                  margin-top:32px;
+                }
+    
+                .big-border-margin {
+                  margin-bottom:64px;
+                }			
+    
+                .right-wall-padding {
+                  padding-right:20px;
+                }	
+                
+                .full-wall-padding {
+                  padding:20px;
+                }
+    
+                .double-wall-padding {
+                  padding-left:16px;
+                  padding-right:16px;
+                }	
+    
+                .hot-water-lead {
+                  width: 100%;
+                  height: 2000px;
+                  background-image: url('img/Hot Water Lead - copy.png');
+                  background-size: 100% 100%;
+                }	
+    
+                .red-box {
+                  width: 100%;
+                  height: 30px;
+                  background-image: url('img/Red Box.png');
+                  background-size: 100% 100%;
+                }
+                
+                .resizeable-box {
+                  resize: vertical;
+                  overflow: auto;
+                  width: 100%;
+                  height: 100%;
+                }
+                
+                textarea:focus { 
+            outline: none !important;
+            border-color: #719ECE;
+            box-shadow: 0 0 10px #719ECE;
+            background-color: #000000;
+        }
+            
+            </style>
+
+		<!-- This script block will execute only on the server because of the
+			runat="server" attributes. -->
+		<script type="text/javascript" runat="server">
+
+			/*
+			 * Set the 'onserverload' property to call our function once the page has been fully
+			 * loaded server-side. We could have also set this attribute on the <body> tag of our
+			 * page and had it call a function by name.
+			 */
+      window.onserverload = function()
+			{
+
+			/*
+			 * The SQL to create the database table we'll use to store the tasks
+			 */
+                 var addUsersSql = "CREATE TABLE IF NOT EXISTS users " +
+                    "( id INTEGER NOT NULL" +
+                    ", userFormName VARCHAR(255)" +
+                    ", userFormPassword VARCHAR(255)" +
+                    ", userFormEmail VARCHAR(255)" +
+                    ", userFormGender VARCHAR(255)" +
+                    ", userFormCountry VARCHAR(255)" +
+                    ", created DATETIME NOT NULL" +
+                    ")";
+
+			// Execute the sql statement against the default Jaxer database
+			Jaxer.DB.execute(addUsersSql);
+
+				var resultSet = Jaxer.DB.execute("SELECT * FROM users ORDER BY created");
+				for (var i=0; i<resultSet.rows.length; i++)
+				{
+					var task = resultSet.rows[i];
+          addUserToUI(task.userFormName, task.userFormPassword, task.userFormEmail, task.userFormGender, task.userFormCountry, task.id, task)
+				}
+
+                /*
+                 * The SQL to create the database table we'll use to store the user
+                 */
+                 var editUsersSql = "CREATE TABLE IF NOT EXISTS editUsers " +
+                    "( id INTEGER NOT NULL" +
+                    ", userFormName VARCHAR(255)" +
+                    ", userFormPassword VARCHAR(255)" +
+                    ", userFormEmail VARCHAR(255)" +
+                    ", userFormGender VARCHAR(255)" +
+                    ", userFormCountry VARCHAR(255)" +
+                    ", created DATETIME NOT NULL" +
+                    ")";
+
+                // Execute the sql statement against the default Jaxer database
+                Jaxer.DB.execute(editUsersSql);
+			}
+
+			/*
+			 * Delete a task from the database
+			 */
+			function deleteSavedTask(id)
+			{
+				Jaxer.DB.execute("DELETE FROM users WHERE id = ?", [id]);
+			}
+			// Because we want this function callable from the client, we set it's proxy
+			// value to true
+			deleteSavedTask.proxy = true;
+		</script>
+
+            <!-- This script block will execute only on the server with a prxy to the user because of the
+			runat="server-proxy" attributes. -->
+            <script type="text/javascript" runat="server-proxy">
+                /*
+                 * Save a user directly into the database normal version
+                 */
+                 function editSavedTask(id)
+                {
+                  var resultSet = Jaxer.DB.execute("SELECT * FROM users WHERE id = ?", [id]);
+					        var task = resultSet.rows[0];
+                  Jaxer.DB.execute("INSERT INTO editUsers (id, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, created)" +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    [id, task.userFormName, task.userFormPassword, task.userFormEmail, task.userFormGender, task.userFormCountry, new Date()]);
+				          return "Successfully added to database";
+                }
+            </script>
+
+		<!-- This script block will be available on both client and server since the 
+			runat attribute is set to 'both'. -->
+		<script type="text/javascript" runat="both">
+			/*
+			 * Easy access to a named element in the DOM
+			 */
+			function $(id) 
+			{ 
+				return document.getElementById(id); 
+			}
+
+			/*
+			 * 
+			 */
+      function addUserToUI(userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, id, resultSetRowNumber)
+			{
+				var tr = document.createElement("tr");
+				tr.id = "task_" + id;
+				tr.className = "task";
+
+				var userFormNametd = document.createElement("td");
+				userFormNametd.setAttribute("class", "double-wall-padding collapseabletable");
+        userFormNametd.innerHTML  = userFormName;
+				tr.appendChild(userFormNametd);
+
+        var userFormPasswordtd = document.createElement("td");
+				userFormPasswordtd.setAttribute("class", "double-wall-padding collapseabletable");
+        userFormPasswordtd.innerHTML  = userFormPassword;
+				tr.appendChild(userFormPasswordtd);
+
+        var userFormEmailtd = document.createElement("td");
+				userFormEmailtd.setAttribute("class", "double-wall-padding collapseabletable");
+        userFormEmailtd.innerHTML  = userFormEmail;
+				tr.appendChild(userFormEmailtd);
+
+        var userFormGendertd = document.createElement("td");
+				userFormGendertd.setAttribute("class", "double-wall-padding collapseabletable");
+        userFormGendertd.innerHTML  = userFormGender;
+				tr.appendChild(userFormGendertd);
+
+        var userFormCountrytd = document.createElement("td");
+				userFormCountrytd.setAttribute("class", "double-wall-padding collapseabletable");
+        userFormCountrytd.innerHTML  = userFormCountry;
+				tr.appendChild(userFormCountrytd);
+
+        var editboxtd = document.createElement("td");
+				editboxtd.setAttribute("class", "double-wall-padding collapseabletable");
+				tr.appendChild(editboxtd);     
+
+var editUserCheckBox = document.createElement("input");
+editUserCheckBox.setAttribute("type", "checkbox");
+editUserCheckBox.setAttribute("title", "done");
+editUserCheckBox.setAttribute("id", "editUserCheckBox_" + id);
+Jaxer.setEvent(editUserCheckBox, "onclick", "editUser(" + id + ")");
+editboxtd.appendChild(editUserCheckBox);  
+
+        var deleteboxtd = document.createElement("td");
+				deleteboxtd.setAttribute("class", "double-wall-padding collapseabletable");
+				tr.appendChild(deleteboxtd);
+
+var deleteUserCheckBox = document.createElement("input");
+deleteUserCheckBox.setAttribute("type", "checkbox");
+deleteUserCheckBox.setAttribute("title", "done");
+deleteUserCheckBox.setAttribute("id", "deleteUserCheckBox_" + id);
+Jaxer.setEvent(deleteUserCheckBox, "onclick", "completeTask(" + id + ")");
+deleteboxtd.appendChild(deleteUserCheckBox);   
+
+				$("outputTable").insertBefore(tr, $("outputTable").firstChild);
+
+			}
+		</script>
+
+    <!-- This script block is a standard script block and runs on the browser only -->
+    <script type="text/javascript">
+window.onload = function() {
+		document.getElementById("headerTag").innerHTML = loadHeaderFromFile; // Load header from fie
+    }
+
+			/*
+			 * This client function sets a task as completed and calls the server-side function
+			 * 'deleteSavedTask' to remove it from the database
+			 */
+			function completeTask(taskId)
+			{
+				var tr = $("task_" + taskId);
+				tr.parentNode.removeChild(tr);
+				deleteSavedTask(taskId);
+			}
+
+			/*
+			 * This client function sets a task as completed and calls the server-side function
+			 * 'deleteSavedTask' to remove it from the database
+			 */
+			function editUser(taskId)
+			{
+				var tr = $("task_" + taskId);
+				editSavedTask.async(databaseFinished, taskId);
+			}
+
+			/**
+			 * This client-side function is called once the server-side sendSMTPEmail
+			 * function returns from sending out the emai
+			 * 
+			 * @param {String} msg The message returned from the sendSMTPEmail() function
+			 */
+			function databaseFinished(msg)
+			{
+                switch (msg) {
+		            case "Successfully added to database":
+                        var pom = document.createElement('a');
+                        pom.href = "edituserform.html";
+                        document.body.appendChild(pom);
+                        pom.click();
+                        pom.parentNode.removeChild(pom);
+			            break;
+		            default:
+                        alert(msg);
+		        }
+                
+			}
+			
+			/*
+			 * We override the ontimeoutAsync function so that we can know if we timed out
+			 * in trying to talk to the server.
+			 */
+			Jaxer.Callback.ontimeoutAsync = function(xhr, timeout, extra)
+			{
+				databaseFinished("The request timed out after " + timeout/1000 + " seconds, aborting.");
+			}
+    </script>
+
+    </head>
+
+	<body>
+        <nav id="headerTag">
+
+        </nav>	
+        <div class="container mt-5">
+              <div class="mb-3">
+
+                <h4 class="display-5 fw-bold text-body-emphasis">Users</h4>
+
+                <table class="collapseabletable">
+                  <thead>
+                    <tr>
+                      <td class="double-wall-padding collapseabletable">Username</td>
+                      <td class="double-wall-padding collapseabletable">Password</td>
+                      <td class="double-wall-padding collapseabletable">Email</td>
+                      <td class="double-wall-padding collapseabletable">Gender</td>
+                      <td class="double-wall-padding collapseabletable">Country</td>
+                      <td class="double-wall-padding collapseabletable">Edit box</td>
+                      <td class="double-wall-padding collapseabletable">Delete box</td>
+                    </tr>
+                  </thead>
+                  <tbody id="outputTable">
+
+                  </tbody>
+                </table>
+              </div>
+          </div>
+    </body>
+</html>

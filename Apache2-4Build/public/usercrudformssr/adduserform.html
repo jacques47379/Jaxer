@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Meta data -->
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Codes With Pankaj</title>
+        <script src="js/header.js"></script>
+        <script src="js/userform.js"></script>
+
+        <script src="js/bootstrap.min.js"></script>
+		<link rel='stylesheet' type='text/css' href='css/bootstrap.min.css'>
+        
+    </head>
+    <script type="text/javascript">
+window.onload = function() {
+		document.getElementById("headerTag").innerHTML = loadHeaderFromFile; // Load header from fie	
+        document.getElementById("userFormTag").innerHTML = loadUserFormFromFile; // Load user form from fie	
+    }
+
+    function addUser()
+			{
+                addUserButton.value = "Adding user...";
+				addUserButton.disabled = true;
+
+				var userFormName = $('user-Form-Name').value;
+                var userFormPassword = $('user-Form-Password').value;
+                var userFormEmail = $('user-Form-Email').value;
+                var userFormGender = $('user-Form-Gender').value;
+                var userFormCountry = $('user-Form-Country').value;
+
+                // If any of the values are blank, let the user know.
+                // This is not fancy, as we're showing off email sending, not forms validation :-)
+                if(userFormName == "" || userFormPassword == "" || userFormEmail == "" || userFormGender == "" || userFormCountry == "")
+                {
+                    alert("One of the fields is blank, please enter values for all fields.");
+                    addUserButton.value = "Add User";
+                    addUserButton.disabled = false;
+                    return;
+                }
+
+                var newId = Math.ceil(1000000000 * Math.random());
+				// Now that we're ready to send, let's use an Asynchronous version of the call so that our
+				// browser doesn't hang (i.e. block) waiting for the email server to return.
+				// You do this by simply calling the function name you wrote, but adding 'Async' to the end
+				// of the name, and using the callback function as the first parameter. In this case,
+				// when the call is done, 'emailSent()' is called.
+				saveUserInDB.async(databaseFinished, newId, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry);
+			}
+			
+			/**
+			 * This client-side function is called once the server-side sendSMTPEmail
+			 * function returns from sending out the emai
+			 * 
+			 * @param {String} msg The message returned from the sendSMTPEmail() function
+			 */
+			function databaseFinished(msg)
+			{
+				// Set the button state and label back to normal
+                addUserButton.value = "Add User";
+                addUserButton.disabled = false;
+
+                
+                switch (msg) {
+		            case "Successfully added to database":
+                        var pom = document.createElement('a');
+                        pom.href = "index.html";
+                        document.body.appendChild(pom);
+                        pom.click();
+                        pom.parentNode.removeChild(pom);
+			            break;
+		            default:
+                        alert(msg);
+		        }
+                
+			}
+			
+			/*
+			 * We override the ontimeoutAsync function so that we can know if we timed out
+			 * in trying to talk to the server.
+			 */
+			Jaxer.Callback.ontimeoutAsync = function(xhr, timeout, extra)
+			{
+				databaseFinished("The request timed out after " + timeout/1000 + " seconds, aborting.");
+			}
+
+    </script>
+
+            <!-- This script block will execute only on the server with a prxy to the user because of the
+			runat="server-proxy" attributes. -->
+            <script type="text/javascript" runat="server-proxy">
+                /*
+                 * Save a user directly into the database normal version
+                 */
+                 function saveUserInDB(id, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry)
+                {
+				// We now put a try/catch around the send so we can detect any errors
+				// that might occur (i.e. cannot connect to server)
+				try {
+					// Send the MailMessage object we created to the 'server' specified
+					// over SMTP. Note: No authentication is performed.
+					Jaxer.DB.execute("INSERT INTO users (id, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, created)" +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    [id, userFormName, userFormPassword, userFormEmail, userFormGender, userFormCountry, new Date()]);
+				} 
+				catch (e) {
+					// If there is an error, the exception will contain a description of it.
+					return e.toString();
+				}
+				// If nothing went wrong, then we are successful.
+				return "Successfully added to database";
+                }
+            </script>
+
+
+		<!-- This script block will be available on both client and server since the 
+			runat attribute is set to 'both'. -->
+    <script type="text/javascript" runat="both">
+                /*
+                 * Easy access to a named element in the DOM
+                 */
+                function $(id) 
+                { 
+                    return document.getElementById(id); 
+                }
+
+    </script>
+
+		<!-- This script block will execute only on the server because of the
+			runat="server" attributes. -->
+            <script type="text/javascript" runat="server">
+			                
+                /*
+                 * Set the 'onserverload' property to call our function once the page has been fully
+                 * loaded server-side. We could have also set this attribute on the <body> tag of our
+                 * page and had it call a function by name.
+                 */
+                window.onserverload = function()
+                {
+                /*
+                 * The SQL to create the database table we'll use to store the user
+                 */
+                 var sql = "CREATE TABLE IF NOT EXISTS users " +
+                    "( id INTEGER NOT NULL" +
+                    ", userFormName VARCHAR(255)" +
+                    ", userFormPassword VARCHAR(255)" +
+                    ", userFormEmail VARCHAR(255)" +
+                    ", userFormGender VARCHAR(255)" +
+                    ", userFormCountry VARCHAR(255)" +
+                    ", created DATETIME NOT NULL" +
+                    ")";
+                    
+                // Execute the sql statement against the default Jaxer database
+                Jaxer.DB.execute(sql);
+                }
+            
+            </script>
+
+	<body>	
+        <nav id="headerTag">
+
+        </nav>	
+        <div class="container mt-5">
+              <div class="mb-3" id="userFormTag">
+
+              </div>
+              <input type="button" class="btn btn-primary" id="addUserButton" value="Add User" onclick="addUser()">
+          </div>
+    </body>
+</html>
+
